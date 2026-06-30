@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>存档管理 - 怀璞楼</title>
+    <style>
+        :root {
+            --bg: #f2f0e8; --text: #3a3528; --accent: #8a9e7d; --border: #d4ceba;
+            --card-bg: #fdfcf7; --font-heading: "STKaiti","楷体",serif; --font-body: "STKaiti","楷体",serif;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            background-color:#e8e4d8; background-image:radial-gradient(ellipse at 50% 30%, rgba(180,200,160,0.2) 0%, transparent 60%);
+            font-family:var(--font-body); color:var(--text); min-height:100vh;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .container{
+            background:rgba(253,252,247,0.9); border:2px solid var(--border); border-radius:12px;
+            padding:40px 32px; max-width:650px; width:90%; text-align:center;
+            box-shadow:0 8px 30px rgba(60,50,30,0.1);
+        }
+        h1{ font-family:var(--font-heading); font-size:2.2rem; letter-spacing:6px; color:#4a5540; margin-bottom:24px; }
+        .slot-list{ display:flex; flex-direction:column; gap:16px; margin-bottom:24px; }
+        .slot-card{
+            background:var(--card-bg); border:2px solid var(--border); border-radius:8px;
+            padding:18px 20px; display:flex; align-items:center; justify-content:space-between;
+            transition:all 0.2s;
+        }
+        .slot-card:hover{ border-color:var(--accent); box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+        .slot-info{ text-align:left; flex:1; }
+        .slot-name{ font-weight:bold; font-size:1.15rem; letter-spacing:2px; color:#4a4030; margin-bottom:4px; }
+        .slot-meta{ font-size:0.85rem; color:#8a7a5a; line-height:1.4; }
+        .slot-actions{ display:flex; gap:8px; flex-shrink:0; }
+        .btn{
+            padding:8px 16px; border:1.5px solid var(--accent); background:transparent;
+            color:var(--accent); border-radius:4px; cursor:pointer; font-family:var(--font-body);
+            letter-spacing:1px; font-size:0.9rem; transition:all 0.2s; white-space:nowrap;
+        }
+        .btn:hover{ background:var(--accent); color:#fff; }
+        .btn.primary{ background:var(--accent); color:#fff; }
+        .btn.primary:hover{ background:#6e8a5e; }
+        .btn.danger{ border-color:#c94b3a; color:#c94b3a; }
+        .btn.danger:hover{ background:#c94b3a; color:#fff; }
+        .btn.new-game{ border-color:#b8a87d; color:#8a7a5a; }
+        .btn.new-game:hover{ background:#b8a87d; color:#fff; }
+        .footer-note{ font-size:0.8rem; color:#a09070; margin-top:16px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>存 档 管 理</h1>
+    <div class="slot-list" id="slotList"></div>
+    <div class="footer-note">继续游戏将自动回到最靠近结局的位置</div>
+</div>
+
+<script>
+    const SLOT_COUNT = 3;
+
+    function getSlotData(slotIndex) {
+        const raw = localStorage.getItem(`slot${slotIndex}_data`);
+        if (!raw) return null;
+        try { return JSON.parse(raw); } catch(e) { return null; }
+    }
+
+    function setSlotData(slotIndex, data) {
+        localStorage.setItem(`slot${slotIndex}_data`, JSON.stringify(data));
+    }
+
+    function clearSlot(slotIndex) {
+        localStorage.removeItem(`slot${slotIndex}_data`);
+    }
+
+    // 根据游戏进度智能判断目标页面和视图
+    function getProgressTarget(data) {
+        if (!data) return { page: 'pageA', view: 'home' };
+
+        // 如果古董店任务已完成，进入结局阶段（pageA，可查看第五段对话）
+        if (data.pageCCompleted) {
+            return { page: 'pageA', view: 'home' };
+        }
+
+        // 如果还没看过公告，从头开始
+        if (!data.announcementSeen) {
+            return { page: 'pageA', view: 'home' };
+        }
+
+        // 已穿越，在1926年，根据进度判断视图
+        // 第四段对话已完成，有时空转换器 → 密室
+        if (data.telegraphSolved && data.timeConverterCollected) {
+            return { page: 'pageB', view: 'secret' };
+        }
+        // 抽屉纸条已解开（第三段对话触发） → 密室
+        if (data.drawerNoteSolved) {
+            return { page: 'pageB', view: 'secret' };
+        }
+        // 密室已解锁 → 密室
+        if (data.secretUnlocked) {
+            return { page: 'pageB', view: 'secret' };
+        }
+        // 成语谜题解开（第二段对话触发） → 书房
+        if (data.drawerPuzzleSolved) {
+            return { page: 'pageB', view: 'study' };
+        }
+        // 第一段对话完成且拥有钥匙 → 书房
+        if (data.diaryDialogues && data.diaryDialogues['1'] && data.backpack && data.backpack.includes('studyKey')) {
+            return { page: 'pageB', view: 'study' };
+        }
+        // 已获得钥匙 → 教室（但可以进书房）
+        if (data.backpack && data.backpack.includes('studyKey')) {
+            return { page: 'pageB', view: 'classroom' };
+        }
+        // 默认 → 教室
+        return { page: 'pageB', view: 'classroom' };
+    }
+
+    function getSlotSummary(data) {
+        if (!data) return '空存档';
+        const parts = [];
+        const target = getProgressTarget(data);
+
+        if (target.page === 'pageA' && data.pageCCompleted) {
+            parts.push('📰 结局阶段');
+        } else if (target.page === 'pageA') {
+            parts.push('📰 公告未读');
+        } else {
+            parts.push('📰 已穿越至1926年');
+            if (target.view === 'secret') parts.push('📍 密室');
+            else if (target.view === 'study') parts.push('📍 书房');
+            else parts.push('📍 教室');
+        }
+
+        if (data.visitorName && data.visitorName !== '玩家') parts.push(`👤 ${data.visitorName}`);
+        if (data.diaryUnlocked) parts.push('📔 日记本');
+        if (data.passwordSolved) parts.push('🔓 盒子密码已解');
+        if (data.backpack && data.backpack.includes('studyKey')) parts.push('🔑 已获钥匙');
+        if (data.drawerPuzzleSolved) parts.push('📜 信件谜题已解');
+        if (data.secretUnlocked) parts.push('🚪 密室已解锁');
+        if (data.telegraphSolved) parts.push('📡 电报已破解');
+        if (data.timeConverterCollected) parts.push('⏳ 时空转换器');
+        if (data.pageCCompleted) parts.push('✅ 古董店任务完成');
+        if (data.diaryDialogues) {
+            const dcount = Object.keys(data.diaryDialogues).length;
+            if (dcount > 0) parts.push(`💬 对话 ${dcount}/5`);
+        }
+        const clicked = data.clickedHotspots ? Object.keys(data.clickedHotspots).length : 0;
+        if (clicked > 0) parts.push(`🔍 已探索 ${clicked} 处`);
+        return parts.join(' · ') || '新游戏';
+    }
+
+    function renderSlots() {
+        const container = document.getElementById('slotList');
+        let html = '';
+        for (let i = 1; i <= SLOT_COUNT; i++) {
+            const data = getSlotData(i);
+            const summary = getSlotSummary(data);
+            const isEmpty = !data;
+            html += `
+            <div class="slot-card">
+                <div class="slot-info">
+                    <div class="slot-name">存档 ${i}</div>
+                    <div class="slot-meta">${summary}</div>
+                </div>
+                <div class="slot-actions">
+                    ${isEmpty
+                        ? `<button class="btn new-game" onclick="startNewGame(${i})">新游戏</button>`
+                        : `<button class="btn primary" onclick="loadSlot(${i})">继续</button>
+                           <button class="btn danger" onclick="deleteSlot(${i})">删除</button>`
+                    }
+                </div>
+            </div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function getDefaultGameState() {
+        return {
+            announcementSeen: false,
+            clickedHotspots: {},
+            backpack: [],
+            diaryUnlocked: false,
+            diaryConversationDone: false,
+            studyKeyAvailable: false,
+            pic7Pasted: false,
+            passwordSolved: false,
+            readerPages: {},
+            conversationStage: 0,
+            bookSequence: [],
+            secretUnlocked: false,
+            drawerPuzzleSolved: false,
+            telegraphSolved: false,
+            timeConverterCollected: false,
+            drawerRedDot: false,
+            drawerRedDotSeen: false,
+            podiumKeyRedDotSeen: false,
+            diaryRedDotSeen: false,
+            diaryStage: 1,
+            diaryDialogues: {},
+            visitorName: '玩家',
+            drawerNoteSolved: false,
+            remainingChars: [],
+            slotValues: ['', '', '', '', '', '', '', ''],
+            pageCCompleted: false,
+            diaryNotificationShown: false
+        };
+    }
+
+    function startNewGame(slotIndex) {
+        if (confirm(`确定在存档 ${slotIndex} 开始新游戏吗？${getSlotData(slotIndex) ? '当前进度将被覆盖。' : ''}`)) {
+            setSlotData(slotIndex, getDefaultGameState());
+            sessionStorage.setItem('currentSlot', slotIndex);
+            window.location.href = 'pageA.html';
+        }
+    }
+
+    function loadSlot(slotIndex) {
+        sessionStorage.setItem('currentSlot', slotIndex);
+        const data = getSlotData(slotIndex);
+        if (!data) {
+            window.location.href = 'pageA.html';
+            return;
+        }
+        const target = getProgressTarget(data);
+        sessionStorage.removeItem('returnView');
+        if (target.page === 'pageB') {
+            window.location.href = `pageB.html#${target.view}`;
+        } else {
+            window.location.href = 'pageA.html';
+        }
+    }
+
+    function deleteSlot(slotIndex) {
+        if (confirm(`确定删除存档 ${slotIndex} 吗？此操作不可恢复，所有记录将被清空。`)) {
+            clearSlot(slotIndex);
+            renderSlots();
+        }
+    }
+
+    renderSlots();
+</script>
+</body>
+</html>
