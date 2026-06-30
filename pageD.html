@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S市早报 - 兴学路的百年变迁</title>
+    <style>
+        :root {
+            --bg: #f5f0e8;
+            --text: #2c2416;
+            --accent: #c94040;
+            --font-heading: "STKaiti","楷体",serif;
+            --font-body: "STKaiti","楷体",serif;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            background-color:#e8e0d0;
+            font-family:var(--font-body);
+            color:var(--text);
+            min-height:100vh;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            line-height:1.8;
+        }
+        .newspaper-container{
+            width:100%;
+            max-width:750px;
+            background:#fefdf8;
+            box-shadow:0 4px 20px rgba(0,0,0,0.1);
+            min-height:100vh;
+        }
+        .newspaper-header{
+            background:var(--accent);
+            color:#fff;
+            text-align:center;
+            padding:16px 20px;
+            font-family:var(--font-heading);
+            font-size:2rem;
+            letter-spacing:6px;
+            font-weight:bold;
+        }
+        .newspaper-meta{
+            display:flex;
+            justify-content:space-between;
+            padding:10px 20px;
+            font-size:0.8rem;
+            color:#8a7a5a;
+            border-bottom:1px solid #d4c9a8;
+        }
+        .article-content{
+            padding:30px 24px;
+        }
+        .article-content h1{
+            font-family:var(--font-heading);
+            font-size:2rem;
+            letter-spacing:3px;
+            color:#3a2810;
+            margin-bottom:20px;
+            text-align:center;
+            line-height:1.4;
+        }
+        .article-content p{
+            text-indent:2em;
+            margin-bottom:16px;
+            line-height:1.9;
+            font-size:1.05rem;
+        }
+        .article-content .highlight{
+            font-weight:bold;
+            color:#1a1a1a;
+        }
+        .back-btn{
+            display:inline-block;
+            padding:6px 14px;
+            background:rgba(253,252,247,0.9);
+            border:1px solid #c4b898;
+            border-radius:4px;
+            cursor:pointer;
+            font-family:var(--font-body);
+            font-size:0.85rem;
+            letter-spacing:1px;
+            color:var(--text);
+            margin:10px 20px;
+            text-decoration:none;
+        }
+        .back-btn:hover{
+            background:#f0e8d0;
+        }
+        .ad-section{
+            margin:20px 24px 30px;
+            padding:15px;
+            border:1px dashed #c9a87c;
+            background:#fdfaf2;
+            text-align:center;
+            font-size:0.9rem;
+            color:#8a7a5a;
+            border-radius:8px;
+        }
+        .ad-section .ad-label{
+            font-size:0.7rem;
+            letter-spacing:1px;
+            margin-bottom:5px;
+            color:#b8a080;
+        }
+        .ad-section .ad-content{
+            font-size:1.1rem;
+            font-weight:bold;
+            color:#5a4a30;
+            letter-spacing:2px;
+        }
+        .ad-section .ad-link{
+            display:inline-block;
+            margin-top:8px;
+            padding:6px 18px;
+            background:#c9a87c;
+            color:#fff;
+            border-radius:20px;
+            text-decoration:none;
+            font-size:0.85rem;
+            letter-spacing:1px;
+            transition:background 0.2s;
+        }
+        .ad-section .ad-link:hover{
+            background:#b8956e;
+        }
+    </style>
+</head>
+<body>
+<div class="newspaper-container">
+    <div class="newspaper-header">S市早报</div>
+    <div class="newspaper-meta">
+        <span>2026年6月29日</span>
+        <span>城市记忆专栏</span>
+    </div>
+    <div class="article-content">
+        <button class="back-btn" onclick="window.history.back()">← 返回</button>
+        <h1>兴学路的百年变迁</h1>
+        <p>兴学路诞生于百年前，因周边学堂云集、崇尚办学兴教而得名，早年街巷清幽，书香浓厚，是当地文脉聚集之地，留存着浓厚的耕读气息。</p>
+        <p>历经数十年岁月沉淀，街巷两侧民居、学堂交错共生，默默见证一代代学子求学成长。后来城市道路整合改造，兴学路整体并入解放路，旧路名慢慢退出官方命名，只留在老市民的回忆里。</p>
+        <p>并入<span class="highlight">解放路</span>后，这段道路多次拓宽整修，从幽静小巷变为城市主干道的一部分，车流繁盛、面貌一新。虽然兴学路的名字已然消逝，但崇文兴教的底蕴沉淀下来，成为这条道路独有的历史印记。</p>
+    </div>
+    <div class="ad-section">
+        <div class="ad-label">— 广告 —</div>
+        <div class="ad-content">📚 土豆阅读</div>
+        <p style="margin:5px 0; color:#6b5a40;">海量好书，随时随地畅快读</p>
+        <a class="ad-link" href="#" onclick="alert('土豆阅读——您的随身图书馆')">立即下载</a>
+    </div>
+</div>
+</body>
+</html>

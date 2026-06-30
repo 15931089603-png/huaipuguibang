@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>怀璞楼 - 2026</title>
+    <style>
+        :root {
+            --bg: #fdf8ec; --text: #3a3528; --accent: #c9a87c; --border: #d4c9a8;
+            --card-bg: #fffef9; --shadow: 0 2px 12px rgba(60,50,30,0.08); --red-dot: #c94b3a;
+            --font-heading: "STKaiti","楷体",serif; --font-body: "STKaiti","楷体",serif;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            background-color:#f7f1e0; font-family:var(--font-body); color:var(--text);
+            min-height:100vh; display:flex; flex-direction:column; align-items:center; line-height:1.6; position:relative;
+        }
+        body::before{
+            content:''; position:fixed; top:-200px; left:50%; transform:translateX(-50%);
+            width:900px; height:700px; background:radial-gradient(ellipse, rgba(255,250,235,0.55) 0%, rgba(255,245,220,0.25) 35%, transparent 70%);
+            pointer-events:none; z-index:0;
+        }
+        .main-container{
+            width:100%; max-width:1100px; background:rgba(255,252,245,0.7); backdrop-filter:blur(2px);
+            min-height:100vh; display:flex; flex-direction:column; position:relative; z-index:1;
+            box-shadow:0 0 40px rgba(100,80,40,0.06);
+        }
+        .year-badge{
+            position:absolute; top:12px; left:20px; z-index:10;
+            font-family:var(--font-heading); font-size:1.3rem; letter-spacing:4px;
+            color:#5c5544; background:rgba(253,252,247,0.8); padding:4px 12px;
+            border-radius:4px; border:1px solid #d4ceba; display:flex; align-items:center; gap:8px;
+            display:none;
+        }
+        .year-badge.show{ display:flex; }
+        .year-dropdown select{ background:transparent; border:1px solid #d4ceba;
+            font-family:var(--font-body); padding:2px 6px; border-radius:4px; color:#5c5544; cursor:pointer; }
+        .header-banner{ width:100%; background:linear-gradient(180deg,#fefdf8,#f9f4e6);
+            border-bottom:2px solid var(--border); padding:18px 0 12px; text-align:center; }
+        .header-banner img{ max-width:92%; height:auto; max-height:110px; }
+        .footer{ background:#1a1a1a; color:#ccc; padding:28px 24px 18px; text-align:center;
+            font-size:0.85rem; line-height:1.9; margin-top:auto; }
+        .footer-links{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px 18px; margin-bottom:12px; }
+        .footer-links span{ cursor:pointer; transition:color 0.2s; }
+        .footer-links span:hover{ color:#fff; }
+        .content{ flex:1; padding:24px 32px 40px; display:flex; flex-direction:column; align-items:center; }
+        .page-title{ font-family:var(--font-heading); font-size:3rem; letter-spacing:6px; color:#5a4a30; margin:8px 0 16px; }
+        .search-bar{ display:flex; margin-bottom:28px; width:100%; max-width:500px; position:relative; }
+        .search-bar input{ flex:1; padding:10px 16px; border:2px solid var(--border); border-right:none;
+            border-radius:6px 0 0 6px; background:#fffef9; }
+        .search-bar button{ padding:10px 20px; background:var(--accent); color:#fff;
+            border:2px solid var(--accent); border-radius:0 6px 6px 0; cursor:pointer; }
+        .search-result{ position:absolute; top:100%; left:0; right:0; background:#fffef9;
+            border:1px solid var(--border); border-radius:6px; margin-top:4px; box-shadow:var(--shadow);
+            z-index:30; display:none; }
+        .search-result .result-item{ padding:12px 16px; cursor:pointer; border-bottom:1px solid #f0ead8; }
+        .search-result .result-item:hover{ background:#f9f4e6; }
+        .search-result .no-result{ padding:16px; color:#a09070; text-align:center; }
+        .card-row{ display:flex; gap:28px; flex-wrap:wrap; justify-content:center; max-width:960px; }
+        .card{ flex:1; min-width:220px; max-width:300px; background:var(--card-bg);
+            border:1px solid var(--border); border-radius:8px; overflow:hidden; text-align:center; }
+        .card img{ width:100%; height:180px; object-fit:cover; }
+        .card-label{ padding:10px 0 4px; font-weight:bold; letter-spacing:2px; }
+        .card-btn{ display:inline-block; margin:6px 0 16px; padding:8px 22px;
+            border:1.5px solid var(--accent); color:var(--accent); border-radius:4px; cursor:pointer; }
+        .back-btn{ position:absolute; top:20px; left:20px; padding:6px 14px;
+            background:rgba(253,252,247,0.8); border:1px solid var(--border); border-radius:4px;
+            cursor:pointer; font-size:0.85rem; z-index:5; }
+        .subpage-content{ width:100%; max-width:800px; margin:0 auto; padding:20px 0; }
+        .subpage-content h2{ font-family:var(--font-heading); letter-spacing:3px; color:#5a4a30;
+            margin-bottom:16px; border-bottom:2px solid var(--border); padding-bottom:8px; }
+        .subpage-content p{ text-indent:2em; margin-bottom:12px; line-height:1.9; }
+        .photo-gallery{ display:flex; gap:24px; flex-wrap:wrap; justify-content:center; }
+        .photo-card{ flex:1; min-width:200px; max-width:300px; text-align:center; cursor:pointer; }
+        .photo-card img{ width:100%; border-radius:8px; }
+        .booking-panel{ background:#fffef9; border:1px solid var(--border); border-radius:8px;
+            padding:20px; margin:20px 0; max-width:600px; }
+        .date-selector{ display:flex; gap:10px; flex-wrap:wrap; margin:16px 0; }
+        .date-box{ width:80px; padding:10px 4px; text-align:center; border:1px solid var(--border);
+            border-radius:6px; cursor:pointer; background:#fefdf8; }
+        .date-box.selected{ background:var(--accent); color:#fff; }
+        .date-box .day{ font-size:1.3rem; font-weight:bold; }
+        .visitor-list{ margin:12px 0; }
+        .visitor-item{ display:inline-block; background:#f0e8d0; padding:4px 12px; border-radius:12px; margin:4px; }
+        .add-visitor-btn{ display:inline-flex; align-items:center; justify-content:center;
+            width:30px; height:30px; background:var(--accent); color:#fff; border-radius:50%;
+            cursor:pointer; font-size:1.2rem; margin-left:8px; }
+        .modal-overlay{ position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(20,16,10,0.65); z-index:100; display:flex; align-items:center; justify-content:center; }
+        .modal-overlay.hidden{ display:none; }
+        .modal-dialog{ background:#fef9ed; border:3px solid #c9a87c; border-radius:10px;
+            max-width:650px; width:90%; max-height:80vh; overflow-y:auto; position:relative; }
+        .modal-close{ position:absolute; top:10px; left:12px; width:30px; height:30px;
+            background:#c94b3a; color:#fff; border:none; border-radius:50%; cursor:pointer;
+            display:flex; align-items:center; justify-content:center; font-size:1.2rem; z-index:5; }
+        .modal-body{ padding:40px 28px 24px; }
+        .announce-badge{ display:inline-block; background:#c94b3a; color:#fff; padding:4px 12px;
+            font-weight:bold; letter-spacing:2px; margin-bottom:16px; border-radius:4px; }
+        .hidden{ display:none !important; }
+
+        .backpack-btn{ position:fixed; bottom:24px; left:24px; z-index:50; width:52px; height:52px;
+            background:#c4a87c; border:3px solid #8b6f4e; border-radius:50%; display:flex;
+            align-items:center; justify-content:center; font-size:1.5rem; color:#3a2810;
+            cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.2); display:none; }
+        .backpack-btn.show{ display:flex; }
+        .backpack-panel{ position:fixed; bottom:84px; left:20px; background:#fdfaf2;
+            border:2px solid #c4b898; border-radius:8px; padding:16px; min-width:180px;
+            display:none; z-index:49; box-shadow:0 6px 20px rgba(0,0,0,0.2); }
+        .backpack-panel.open{ display:block; }
+        .backpack-panel h4{ margin:0 0 10px; font-family:var(--font-heading); letter-spacing:2px;
+            color:#5c4c30; font-size:0.95rem; border-bottom:1px solid #d4ceba; padding-bottom:6px; }
+        .backpack-item{ padding:6px 10px; cursor:pointer; border-radius:4px; font-size:0.9rem; letter-spacing:1px; }
+        .backpack-item:hover{ background:#f5efe0; }
+
+        .contact-btn{
+            position:fixed; bottom:24px; left:90px; z-index:150; width:52px; height:52px;
+            background:#b8a87d; border:3px solid #8b6f4e; border-radius:50%;
+            display:none; align-items:center; justify-content:center;
+            font-size:1.8rem; color:#3a2810; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.2);
+        }
+        .contact-btn.show{ display:flex; }
+        .contact-input{
+            width:100%; padding:10px; margin:15px 0; border:2px solid #c9a87c;
+            border-radius:6px; font-family:var(--font-body); font-size:1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <div class="year-badge" id="yearBadge">
+        2026年
+        <div class="year-dropdown">
+            <select onchange="switchYear(this.value)">
+                <option value="2026" selected>2026</option>
+                <option value="1926">1926</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="header-banner"><img src="pic1.jpg" alt="怀璞楼标志"></div>
+
+    <!-- 主页 -->
+    <div class="content" id="homePage">
+        <h1 class="page-title">怀 璞 楼</h1>
+        <div class="search-bar" id="searchBarContainer">
+            <input type="text" id="searchInput" placeholder="搜索..." onkeydown="if(event.key==='Enter') performSearch()">
+            <button onclick="performSearch()">搜索</button>
+            <div class="search-result" id="searchResult"></div>
+        </div>
+        <div class="card-row">
+            <div class="card" onclick="goToHistory()">
+                <img src="pic11.jpg" alt="历史简介"><div class="card-label">历史简介</div><button class="card-btn">点击探索 →</button>
+            </div>
+            <div class="card" onclick="goToPhoto()">
+                <img src="pic12.jpg" alt="摄影展示"><div class="card-label">摄影展示</div><button class="card-btn">点击探索 →</button>
+            </div>
+            <div class="card" onclick="goToBooking()">
+                <img src="pic13.jpg" alt="门票预约"><div class="card-label">门票预约</div><button class="card-btn">点击探索 →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 历史简介页 -->
+    <div class="content hidden" id="historyPage">
+        <button class="back-btn" onclick="goHome()">← 返回首页</button>
+        <div class="subpage-content">
+            <h2>怀璞楼简介</h2>
+            <p>怀璞楼1926年建成，是中法合建二层花园洋房，融合法式洋房结构与中式雕刻、庭院造景，名称取自抱朴守真之意。1926年有文人租住一楼东屋开设小型学堂，兼授国学与西学。2026年经修缮作为历史景点开放，完整复原民国学堂场景，设建筑、教育主题展厅。</p>
+            <h2 style="margin-top:30px;">怀璞楼百年历史</h2>
+            <p>1.1924-1926：华商联合法籍建筑师建成怀璞楼，同年文人租屋办学堂。</p>
+            <p>2.1927-1949：时局动荡，学堂停办，屋主避乱迁徙，洋房几经转租。</p>
+            <p>3.1950-1999：建筑收归公有，先后用作宿舍、图书室，主体结构与学堂旧物得以留存。</p>
+            <p>4.2000-2025：列入历史保护建筑，全面测绘修缮，整理出完整办学史料，复原原始空间。</p>
+            <p>5.2026：怀璞楼正式对外开放，以民国洋房与微型学堂为核心展陈。</p>
+        </div>
+    </div>
+
+    <!-- 摄影展示页 -->
+    <div class="content hidden" id="photoPage">
+        <button class="back-btn" onclick="goHome()">← 返回首页</button>
+        <div class="photo-gallery">
+            <div class="photo-card" onclick="showPhotoView('classroom')">
+                <img src="pic14.jpg" alt="教室"><p>教 室</p>
+            </div>
+            <div class="photo-card" onclick="showPhotoView('study')">
+                <img src="pic15.jpg" alt="书房"><p>书 房</p>
+            </div>
+            <div class="photo-card" onclick="showPhotoView('telegraph')">
+                <img src="pic16.jpg" alt="电报室"><p>电报室</p>
+            </div>
+        </div>
+        <div id="photoViewer" class="hidden" style="width:100%;text-align:center;margin-top:20px;">
+            <img id="photoViewerImg" src="" style="max-width:100%;max-height:70vh;border-radius:8px;">
+        </div>
+    </div>
+
+    <!-- 门票预约页 -->
+    <div class="content hidden" id="bookingPage">
+        <button class="back-btn" onclick="goHome()">← 返回首页</button>
+        <div class="booking-panel">
+            <h3 style="letter-spacing:3px;">选择参观日期</h3>
+            <div class="date-selector" id="dateSelector"></div>
+            <div style="margin-top:20px;">
+                <strong>参观人</strong>
+                <span class="add-visitor-btn" onclick="addVisitor()">+</span>
+                <div class="visitor-list" id="visitorList"></div>
+            </div>
+            <button class="card-btn" style="margin-top:20px;width:100%;" onclick="submitBooking()">预约参观</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-links"><span>网站地图</span><span>相关链接</span><span>影像授权</span><span>隐私政策</span><span>版权声明</span><span>留言板</span><span>联系我们</span></div>
+        <div class="follow-title">关注我们</div>
+        <div class="social-icons"><span>微信</span><span>微博</span><span>小红书</span><span>抖音</span></div>
+        <div class="copyright">©爆炒霸王龙🦖制作</div>
+        <div class="disclaimer">所有内容均为虚构，仅供解谜体验</div>
+    </div>
+</div>
+
+<!-- 公告弹窗 -->
+<div class="modal-overlay hidden" id="announceModal">
+    <div class="modal-dialog">
+        <button class="modal-close" onclick="closeAnnounceAndJump()">✕</button>
+        <div class="modal-body">
+            <div class="announce-badge">公 告</div>
+            <h3 style="text-align:center; margin-bottom:16px;">关于我馆首展核心藏品定窑白瓷瓶出现赝品、警方介入调查的公告</h3>
+            <p style="text-indent:2em; line-height:1.9;">为庆祝怀璞楼正式对公众开放，我馆筹备馆藏珍品展。近日开展展品核验时发现镇馆之宝一对定窑白瓷划花莲纹长瓶，其中一件为仿造赝品。</p>
+            <p style="text-indent:2em; line-height:1.9;">我馆已封存相关文物与台账证据，并向公安机关报案，警方现已介入调查。本次展览将临时撤下该组瓷瓶，展期相关调整另行通知。</p>
+            <p style="text-indent:2em; line-height:1.9;">我馆将配合公安彻查溯源，同步全面清查馆藏文物，整改保管监管漏洞。对于此次文物管理疏漏，我们深表歉意。</p>
+            <p style="text-align:right; margin-top:20px;">怀璞楼展馆管理处<br>2026年6月29日</p>
+        </div>
+    </div>
+</div>
+
+<!-- 联系弹窗 -->
+<div class="modal-overlay hidden" id="contactModal">
+    <div class="modal-dialog">
+        <button class="modal-close" onclick="closeContact()">✕</button>
+        <div class="modal-body">
+            <h3 style="text-align:center; margin-bottom:20px;">联系我们</h3>
+            <p style="margin-bottom:10px;">请输入定窑白瓷划花莲纹长瓶所在位置</p>
+            <input type="text" class="contact-input" id="contactInput" placeholder="请输入位置...">
+            <div style="text-align:center;">
+                <button onclick="submitContact()" style="padding:10px 25px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer;">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 背包 -->
+<button class="backpack-btn" id="backpackBtn" onclick="toggleBackpack()">🎒</button>
+<div class="backpack-panel" id="backpackPanel">
+    <h4>📦 背包</h4>
+    <div id="backpackItems"></div>
+</div>
+
+<!-- 联系按钮 -->
+<button class="contact-btn" id="contactBtn" onclick="openContact()">💬</button>
+
+<script>
+// ========== 存档适配 ==========
+const currentSlot = sessionStorage.getItem('currentSlot');
+if (!currentSlot) window.location.href = 'save.html';
+const STORAGE_KEY = `slot${currentSlot}_data`;
+
+const GameState = {
+    announcementSeen: false, clickedHotspots: {}, backpack: [],
+    diaryUnlocked: false, diaryConversationDone: false, studyKeyAvailable: false,
+    pic7Pasted: false, passwordSolved: false, readerPages: {},
+    conversationStage: 0, bookSequence: [], secretUnlocked: false,
+    drawerPuzzleSolved: false, telegraphSolved: false, timeConverterCollected: false,
+    drawerRedDot: false, drawerRedDotSeen: false, diaryRedDotSeen: false,
+    diaryStage: 1, diaryDialogues: {}, visitorName: '玩家', drawerNoteSolved: false,
+    remainingChars: [], slotValues: ['','','','','','','',''], pageCCompleted: false,
+    diaryNotificationShown: false, visitedPageE: false, endTriggered: false
+};
+function loadGame() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) try { Object.assign(GameState, JSON.parse(saved)); } catch(e) {}
+}
+function saveGame() { localStorage.setItem(STORAGE_KEY, JSON.stringify(GameState)); }
+loadGame();
+
+// ========== 公告判断 ==========
+function hasSeenAnnouncement() { return GameState.announcementSeen === true; }
+function markAnnouncementSeen() { GameState.announcementSeen = true; saveGame(); }
+
+// ========== 年代切换及背包显示 ==========
+function updateYearBadge() {
+    const badge = document.getElementById('yearBadge');
+    if (GameState.timeConverterCollected && !GameState.pageCCompleted) {
+        badge.classList.add('show');
+    } else {
+        badge.classList.remove('show');
+    }
+}
+function switchYear(val) {
+    if (val === '1926') window.location.href = 'pageB.html';
+}
+function toggleBackpack() {
+    document.getElementById('backpackPanel').classList.toggle('open');
+    updateBackpackUI();
+}
+function updateBackpackUI() {
+    const container = document.getElementById('backpackItems');
+    if (!container) return;
+    let html = '';
+    if (GameState.backpack.length === 0) {
+        html = '<div style="color:#a09070;">空空如也</div>';
+    } else {
+        GameState.backpack.forEach(item => {
+            let label = item;
+            if (item === 'diary') label = '📔 日记本';
+            else if (item === 'map') label = '🗺 地图';
+            else if (item === 'studyKey') label = '🔑 钥匙';
+            else if (item === 'pic7') label = '📝 纸条';
+            else if (item === 'timeConverter') label = '⏳ 时空转换器';
+            html += `<div class="backpack-item" onclick="useItem('${item}')">${label}</div>`;
+        });
+    }
+    container.innerHTML = html;
+}
+function useItem(id) {
+    if (id === 'map') {
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(20,16,10,0.65);z-index:300;display:flex;align-items:center;justify-content:center';
+        modal.innerHTML = `<div style="background:#fef9ed;border:3px solid #c9a87c;border-radius:10px;padding:20px;max-width:90%;max-height:90%;position:relative"><button onclick="this.parentElement.parentElement.remove()" style="position:absolute;top:10px;left:12px;width:30px;height:30px;background:#c94b3a;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:1.2rem">✕</button><img src="pic8.jpg" style="max-width:100%;max-height:80vh;border-radius:8px"></div>`;
+        document.body.appendChild(modal);
+        modal.onclick = function(e){ if(e.target===modal) modal.remove(); };
+    } else if (id === 'studyKey') {
+        alert('一把老旧的钥匙，似乎不属于这个时空。');
+    } else if (id === 'diary') {
+        window.location.href = 'diary.html';
+    } else if (id === 'timeConverter') {
+        alert('时空转换器，可以切换年代（左上角使用）。');
+    } else if (id === 'pic7') {
+        alert('一张纸条，上面似乎有字。');
+    }
+    document.getElementById('backpackPanel').classList.remove('open');
+}
+function updateBackpackBtn() {
+    const btn = document.getElementById('backpackBtn');
+    if (GameState.backpack.length > 0) btn.classList.add('show');
+    else btn.classList.remove('show');
+}
+
+// ========== 联系按钮 ==========
+function checkVisitedPageE() {
+    if (GameState.visitedPageE) {
+        document.getElementById('contactBtn').classList.add('show');
+    }
+}
+function openContact() {
+    document.getElementById('contactModal').classList.remove('hidden');
+}
+function closeContact() {
+    document.getElementById('contactModal').classList.add('hidden');
+}
+function submitContact() {
+    const input = document.getElementById('contactInput').value.trim();
+    if (input === '云笺书局南侧1号仓库') {
+        GameState.endTriggered = true;
+        saveGame();
+        window.location.href = 'end.html';
+    } else {
+        alert('位置不正确，请再试一次。');
+    }
+}
+
+// ========== 页面切换 ==========
+function goHome() {
+    document.getElementById('homePage').classList.remove('hidden');
+    document.getElementById('historyPage').classList.add('hidden');
+    document.getElementById('photoPage').classList.add('hidden');
+    document.getElementById('bookingPage').classList.add('hidden');
+    document.getElementById('photoViewer').classList.add('hidden');
+}
+function goToHistory() {
+    document.getElementById('homePage').classList.add('hidden');
+    document.getElementById('historyPage').classList.remove('hidden');
+    document.getElementById('photoPage').classList.add('hidden');
+    document.getElementById('bookingPage').classList.add('hidden');
+}
+function goToPhoto() {
+    document.getElementById('homePage').classList.add('hidden');
+    document.getElementById('historyPage').classList.add('hidden');
+    document.getElementById('photoPage').classList.remove('hidden');
+    document.getElementById('bookingPage').classList.add('hidden');
+    document.getElementById('photoViewer').classList.add('hidden');
+}
+function goToBooking() {
+    document.getElementById('homePage').classList.add('hidden');
+    document.getElementById('historyPage').classList.add('hidden');
+    document.getElementById('photoPage').classList.add('hidden');
+    document.getElementById('bookingPage').classList.remove('hidden');
+    renderDateSelector();
+}
+function showPhotoView(type) {
+    const viewer = document.getElementById('photoViewer');
+    const img = document.getElementById('photoViewerImg');
+    viewer.classList.remove('hidden');
+    if (type === 'classroom') img.src = 'pic14.jpg';
+    else if (type === 'study') img.src = 'pic15.jpg';
+    else if (type === 'telegraph') img.src = 'pic16.jpg';
+}
+
+// ========== 门票预约 ==========
+function renderDateSelector() {
+    const container = document.getElementById('dateSelector');
+    const today = new Date();
+    let html = '';
+    for (let i=0;i<7;i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate()+i);
+        const day = date.getDate();
+        const month = date.getMonth()+1;
+        const weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
+        const weekday = weekdays[date.getDay()];
+        html += `<div class="date-box" onclick="selectDate(this,'${month}月${day}日 ${weekday}')">
+            <div class="day">${month}/${day}</div><div>${weekday}</div></div>`;
+    }
+    container.innerHTML = html;
+}
+let selectedDateText = '';
+function selectDate(element, dateText) {
+    document.querySelectorAll('.date-box').forEach(b=>b.classList.remove('selected'));
+    element.classList.add('selected');
+    selectedDateText = dateText;
+}
+let visitors = [];
+function addVisitor() {
+    const name = prompt('请输入参观人姓名：');
+    if (name && name.trim()) {
+        visitors.push(name.trim());
+        renderVisitors();
+        if (visitors.length === 1) GameState.visitorName = name.trim();
+        else GameState.visitorName += ', ' + name.trim();
+        saveGame();
+    }
+}
+function renderVisitors() {
+    const list = document.getElementById('visitorList');
+    list.innerHTML = visitors.map(v => `<span class="visitor-item">${v}</span>`).join('');
+}
+function submitBooking() {
+    if (visitors.length === 0) { alert('请先添加参观人'); return; }
+    if (!selectedDateText) { alert('请选择参观日期'); return; }
+    if (hasSeenAnnouncement()) {
+        alert('预约功能已关闭（已阅读公告）');
+        return;
+    }
+    document.getElementById('announceModal').classList.remove('hidden');
+}
+function closeAnnounceAndJump() {
+    document.getElementById('announceModal').classList.add('hidden');
+    markAnnouncementSeen();
+    window.location.href = 'pageB.html';
+}
+
+// ========== 搜索功能 ==========
+function performSearch() {
+    const keyword = document.getElementById('searchInput').value.trim();
+    const resultDiv = document.getElementById('searchResult');
+    resultDiv.innerHTML = '';
+    resultDiv.style.display = 'none';
+    if (!keyword) return;
+
+    let matched = null;
+    if (keyword === '旧岁轩') {
+        matched = { text: '旧岁轩——古董店官网', url: 'pageC.html' };
+    } else if (keyword.includes('兴学路')) {
+        matched = { text: '兴学路的百年变迁', url: 'pageD.html' };
+    } else if (keyword.includes('解放路') && keyword.includes('怀仁街')) {
+        matched = { text: '云笺书局——展卷云笺，不负怀璞初心', subtext: '猜你想搜：解放路和怀仁街交口的云笺书局', url: 'pageE.html' };
+    }
+
+    if (matched) {
+        resultDiv.style.display = 'block';
+        let inner = `<div class="result-item" onclick="window.location.href='${matched.url}'">`;
+        if (matched.subtext) inner += `<div style="color:#8a7a5a;font-size:0.8rem;margin-bottom:4px;">${matched.subtext}</div>`;
+        inner += `${matched.text}</div>`;
+        resultDiv.innerHTML = inner;
+    } else {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<div class="no-result">搜不到Σ( ° △ °|||)︴</div>';
+    }
+}
+document.addEventListener('click', function(e) {
+    if (!document.getElementById('searchBarContainer').contains(e.target)) {
+        document.getElementById('searchResult').style.display = 'none';
+    }
+});
+
+// ========== 初始化 ==========
+goHome();
+updateYearBadge();
+updateBackpackBtn();
+updateBackpackUI();
+checkVisitedPageE();
+</script>
+</body>
+</html>

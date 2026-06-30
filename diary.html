@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日记本</title>
+    <style>
+        :root {
+            --bg: #f5f0e5; --text: #3a3528; --accent: #8a9e7d; --border: #c4b898;
+            --paper: #faf6ed; --ink: #2c2416;
+            --font-heading: "STKaiti","楷体",serif; --font-body: "STKaiti","楷体",serif;
+            --font-hand: "STKaiti","楷体",cursive;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            background-color:#e8e0d0; background-image:radial-gradient(ellipse at 50% 30%, rgba(180,160,120,0.2) 0%, transparent 60%);
+            font-family:var(--font-body); color:var(--text); min-height:100vh; display:flex;
+            align-items:center; justify-content:center; line-height:1.8;
+        }
+        .diary-container{
+            width:90%; max-width:700px; min-height:80vh;
+            background:linear-gradient(180deg, #fdfaf2 0%, #f7f0e0 100%);
+            border:3px solid #b8a080; border-radius:12px;
+            box-shadow:0 8px 30px rgba(60,40,20,0.2), inset 0 0 0 8px #faf6ed, inset 0 0 0 10px #d4c8b0;
+            padding:40px 32px; position:relative; display:flex; flex-direction:column;
+        }
+        .back-to-prev{
+            position:absolute; top:16px; left:20px; padding:6px 14px;
+            background:rgba(253,252,247,0.8); border:1px solid #c4b898; border-radius:4px;
+            cursor:pointer; font-family:var(--font-body); font-size:0.8rem; letter-spacing:1px;
+            color:var(--text); z-index:5; display:block;
+        }
+        .diary-header{ text-align:center; margin-bottom:20px; border-bottom:1px dashed #c4b898; padding-bottom:16px; }
+        .diary-header h1{ font-family:var(--font-heading); letter-spacing:4px; color:#5c4c30; font-size:1.6rem; }
+        .diary-header .subtitle{ font-size:0.8rem; color:#8a7a5a; margin-top:4px; }
+        .conversation-area{ flex:1; overflow-y:auto; padding:8px 0; max-height:55vh; }
+        .msg{
+            margin-bottom:12px; padding:8px 14px; border-radius:10px; max-width:85%; position:relative;
+            line-height:1.8; animation:fadeIn 0.3s;
+        }
+        @keyframes fadeIn{ from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+        .msg.left{ background:#f5efe0; border:1px solid #d4c8b0; margin-right:auto; color:#3a3528; }
+        .msg.right{ background:#e0dcc8; border:1px solid #b8a880; margin-left:auto; color:#2c2416; text-align:right; }
+        .msg .sender{ font-size:0.75rem; font-weight:bold; letter-spacing:1px; margin-bottom:2px; display:block; }
+        .msg.left .sender{ color:#7a6a50; }
+        .msg.right .sender{ color:#5a8a5a; }
+        .system-msg{ text-align:center; color:#8a7a5a; font-size:0.85rem; margin:12px 0; font-style:italic; letter-spacing:1px; }
+        .input-area{
+            display:flex; gap:8px; margin-top:16px; padding-top:12px;
+            border-top:1px dashed #d4c8b0; align-items:center;
+        }
+        .input-area input{ flex:1; padding:10px 14px; border:2px solid #c4b898; border-radius:6px;
+            font-family:var(--font-body); font-size:0.95rem; background:#fefdfa; color:var(--text); outline:none; }
+        .input-area input:focus{ border-color:var(--accent); }
+        .input-area button{ padding:10px 18px; background:var(--accent); color:#fff;
+            border:none; border-radius:6px; cursor:pointer; font-family:var(--font-body); letter-spacing:1px; white-space:nowrap; }
+        .input-area button:disabled{ opacity:0.5; cursor:not-allowed; }
+        .action-btn{ display:inline-block; margin:8px 0; padding:8px 20px; background:#c4a87c; color:#fff;
+            border:none; border-radius:6px; cursor:pointer; font-family:var(--font-body); letter-spacing:2px; text-align:center; }
+        .backpack-mini{ display:flex; gap:6px; flex-wrap:wrap; margin:8px 0; }
+        .backpack-mini .mini-item{ padding:4px 10px; background:#f5efe0; border:1px solid #c4b898;
+            border-radius:12px; cursor:pointer; font-size:0.8rem; transition:background 0.2s; }
+        .backpack-mini .mini-item:hover{ background:#e8dcc8; }
+        .hidden{ display:none !important; }
+    </style>
+</head>
+<body>
+<div class="diary-container">
+    <button class="back-to-prev" onclick="goBack()">← 返回</button>
+    <div class="diary-header">
+        <h1>📔 日记本</h1>
+        <div class="subtitle">一段跨越时空的对话</div>
+    </div>
+    <div class="conversation-area" id="conversationArea"></div>
+    <div class="input-area" id="inputArea">
+        <div class="backpack-mini" id="backpackMini"></div>
+        <input type="text" id="msgInput" placeholder="点击发送继续..." readonly>
+        <button id="sendBtn" onclick="sendMessage()">发送</button>
+    </div>
+    <div id="actionButtons" style="text-align:center;"></div>
+</div>
+
+<script>
+const currentSlot = sessionStorage.getItem('currentSlot');
+if (!currentSlot) window.location.href = 'save.html';
+const STORAGE_KEY = `slot${currentSlot}_data`;
+const GameState = {
+    announcementSeen: false, clickedHotspots: {}, backpack: [],
+    diaryUnlocked: false, diaryConversationDone: false, studyKeyAvailable: false,
+    pic7Pasted: false, passwordSolved: false, readerPages: {},
+    conversationStage: 0, bookSequence: [], secretUnlocked: false,
+    drawerPuzzleSolved: false, telegraphSolved: false, timeConverterCollected: false,
+    drawerRedDot: false, drawerRedDotSeen: false, diaryRedDotSeen: false,
+    diaryStage: 1, diaryDialogues: {}, visitorName: '玩家', drawerNoteSolved: false,
+    remainingChars: [], slotValues: ['','','','','','','',''], pageCCompleted: false,
+    diaryNotificationShown: false, visitedPageE: false, endTriggered: false,
+    diaryViewed4: false
+};
+function loadGame(){ let s=localStorage.getItem(STORAGE_KEY); if(s) Object.assign(GameState,JSON.parse(s)); }
+function saveGame(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(GameState)); }
+loadGame();
+const playerName = GameState.visitorName || '玩家';
+
+const dialogueData = {
+    1: {
+        condition: () => GameState.conversationStage >= 1 && !GameState.diaryDialogues['1'],
+        messages: [
+            { type: 'player', text: '哇去！居然能写字！' },
+            { side: 'left', sender: '陆', text: '啊啊啊啊！你是谁！' },
+            { type: 'player', text: '你们居然能看到我写的字？' },
+            { side: 'left', sender: '余', text: '啊啊啊啊啊你能听到我们说话！' },
+            { side: 'left', sender: '许', text: '你是谁？' },
+            { type: 'player', text: '诶，怎么说呢，其实我是藏在本子里的小精灵。' },
+            { side: 'left', sender: '沈', text: '啊？我可不信。' },
+            { type: 'player', text: '别不信啊，我可以帮助你们的！' },
+            { type: 'system', text: '提示：看看背包里有什么物品可以帮到他们？点击物品再点击发送即可！' },
+            { type: 'itemAction', itemRequired: 'studyKey',
+              successMessages: [
+                  { type: 'player', text: '你们是不是进不去书房？讲桌那里被我变出了一把钥匙哦≡ω≡' },
+                  { type: 'system', text: '外面好像发生了一些变化，快去看看吧。' },
+              ],
+              actionButton: { text: '返回→', target: 'pageB' }
+            }
+        ]
+    },
+    2: {
+        condition: () => GameState.drawerPuzzleSolved && !GameState.diaryDialogues['2'],
+        messages: [
+            { type: 'player', text: '这封信上说的是"敌人将至，速制赝品"' },
+            { side: 'left', sender: '沈', text: '所以先生这几天去古董店，是为了联系人制造赝品？那制造赝品是为了做什么？' },
+            { side: 'left', sender: '陆', text: '难道是要替换掉这里的真品！' },
+            { type: 'player', text: '不出意外的话，是的！你日记里提到的那个长瓶应该是北宋年间定窑出品的，是非常珍贵的历史文物，绝对不能落入敌人之手，用赝品替换是一重保障。' },
+            { side: 'left', sender: '陆', text: '你怎么看我日记！！！' },
+            { type: 'player', text: '≡ω≡不好意思，嘿嘿嘿嘿嘿，不过先别说这个，书架那里好像有异常。' },
+            { type: 'system', text: '书架那里好像有新发现，快去看看吧！' },
+            { type: 'actionButton', text: '返回→', target: 'pageB' }
+        ]
+    },
+    3: {
+        condition: () => GameState.drawerNoteSolved && !GameState.diaryDialogues['3'],
+        messages: [
+            { type: 'player', text: '"五月廿一申时"，难道是行动时间？' },
+            { side: 'left', sender: '许', text: '结合前面的信息，先生应该是要在这个时间去古董店取回赝品，替换这里的真品。' },
+            { type: 'system', text: '（砰——，一道男声传来）' },
+            { side: 'left', sender: '孟', text: '你们在我书房干什么？' },
+            { side: 'left', sender: '陆', text: 'Σ( ° △ °|||)︴…' },
+            { side: 'left', sender: '沈', text: 'Σ( ° △ °|||)︴…' },
+            { side: 'left', sender: '余', text: 'Σ( ° △ °|||)︴…' },
+            { side: 'left', sender: '许', text: 'Σ( ° △ °|||)︴…' },
+            { side: 'left', sender: '孟', text: '哎呦！这里都被你们找到了，看来我得加两道机关了。这是什么，一个日记本？这个字迹…是谁？' },
+            { type: 'player', text: '这个有点不好解释，但是我没有任何恶意！我可以给你们提供一些帮助！' },
+            { side: 'left', sender: '孟', text: '你能听到我说话？帮助先不提，你要我怎么相信你没有恶意？' },
+            { type: 'player', text: 'emm…我就在这个日记本里，我要是真有异心，你分分钟撕碎我好了。' },
+            { side: 'left', sender: '陆', text: '不要撕啊！我还想用这个本写日记呢！' },
+            { side: 'left', sender: '孟', text: '等等，时间马上到了，我得去记录电报。' },
+            { type: 'system', text: '快去看看电报机！' },
+            { type: 'actionButton', text: '返回→', target: 'pageB' }
+        ]
+    },
+    4: {
+        condition: () => GameState.telegraphSolved && !GameState.pageCCompleted,
+        messages: [
+            { type: 'player', text: '"青瓷守土，古玉归邦"是你们接头的暗号？' },
+            { side: 'left', sender: '孟', text: '既然如此也没什么好隐瞒的了，但是在此之前，我想知道你能给我们提供什么帮助呢？' },
+            { type: 'system', text: '刚刚拿到了时光转换器，可以在1926和2026之间穿梭，那么找到古董店附近的监控，再用转换器转换到1926年，就可以通过监控观察路上的情况了！' },
+            { type: 'player', text: '我有办法看到你从古董店离开路上的情况，可以帮你脱离敌人眼线的监视。' },
+            { side: 'left', sender: '孟', text: '既然这样，还有一个问题，也是我一直很苦恼的事，真品应该放在哪里呢？有没有安全的地方？' },
+            { side: 'left', sender: '陆', text: '我想到一个！咱们的秘密基地！' },
+            { side: 'left', sender: '沈', text: '可以，那个地方除了我家人就咱们几个知道，而且在田地里，没有人会去那里找！' },
+            { side: 'left', sender: '孟', html: true, text: '既然如此，那就兵分两路，我和' + playerName + '去<b>旧岁轩</b>取回赝品，你们四个假装去秘密基地玩，把真品藏好！' },
+            { type: 'actionButton', text: '返回→', target: 'pageB' }
+        ]
+    },
+    5: {
+        condition: () => GameState.pageCCompleted,
+        messages: [
+            { type: 'system', text: '日记本另一端的声音消失了，时光转换器也不起作用，但是现在不是伤春悲秋的时候！！！得找到定窑白瓷划花莲纹长瓶现在的位置告知怀璞楼的人，让展览顺利举办！' },
+        ],
+        showBackToPageA: true
+    }
+};
+
+let activeDialogue = null;
+let messageIndex = 0;
+let waitingForItem = null;
+let isTyping = false;
+
+function initDialogue() {
+    let stage = 0;
+    for (let i = 1; i <= 5; i++) {
+        if (dialogueData[i] && dialogueData[i].condition()) {
+            stage = i;
+            break;
+        }
+    }
+    if (stage === 0) {
+        document.getElementById('conversationArea').innerHTML = '<div class="system-msg">日记本暂时没有新内容，去外面看看吧。</div>';
+        document.getElementById('inputArea').classList.add('hidden');
+        document.getElementById('actionButtons').innerHTML = '';
+        return;
+    }
+
+    activeDialogue = dialogueData[stage];
+    if (stage === 4 && GameState.diaryViewed4) {
+        renderAllMessages(activeDialogue.messages);
+        return;
+    }
+    messageIndex = 0;
+    waitingForItem = null;
+    document.getElementById('conversationArea').innerHTML = '';
+    document.getElementById('actionButtons').innerHTML = '';
+    document.getElementById('inputArea').classList.remove('hidden');
+    processNextMessage();
+}
+
+function renderAllMessages(messages) {
+    const area = document.getElementById('conversationArea');
+    area.innerHTML = '';
+    document.getElementById('inputArea').classList.add('hidden');
+    document.getElementById('actionButtons').innerHTML = '';
+    messages.forEach(msg => {
+        if (msg.type === 'player') {
+            appendMessageImmediate('right', playerName, msg.text);
+        } else if (msg.type === 'system') {
+            appendSystemImmediate(msg.text);
+        } else if (msg.type === 'actionButton') {
+            showActionButton(msg.text, msg.target);
+        } else if (msg.side) {
+            if (msg.html) {
+                appendMessageHtml('left', msg.sender, msg.text);
+            } else {
+                appendMessageImmediate('left', msg.sender, msg.text);
+            }
+        }
+    });
+}
+
+function appendMessageImmediate(side, sender, text) {
+    const area = document.getElementById('conversationArea');
+    const div = document.createElement('div');
+    div.className = `msg ${side}`;
+    div.innerHTML = `<span class="sender">${sender}</span>${text}`;
+    area.appendChild(div);
+}
+function appendMessageHtml(side, sender, htmlContent) {
+    const area = document.getElementById('conversationArea');
+    const div = document.createElement('div');
+    div.className = `msg ${side}`;
+    div.innerHTML = `<span class="sender">${sender}</span>${htmlContent}`;
+    area.appendChild(div);
+}
+function appendSystemImmediate(text) {
+    const area = document.getElementById('conversationArea');
+    const div = document.createElement('div');
+    div.className = 'system-msg';
+    div.textContent = text;
+    area.appendChild(div);
+}
+
+function typewriter(element, text, speed, callback) {
+    let i = 0;
+    isTyping = true;
+    document.getElementById('sendBtn').disabled = true;
+    function type() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        } else {
+            isTyping = false;
+            document.getElementById('sendBtn').disabled = false;
+            if (callback) callback();
+        }
+    }
+    type();
+}
+
+function appendMessage(side, sender, text, callback) {
+    const area = document.getElementById('conversationArea');
+    const div = document.createElement('div');
+    div.className = `msg ${side}`;
+    const senderSpan = document.createElement('span');
+    senderSpan.className = 'sender';
+    senderSpan.textContent = sender;
+    div.appendChild(senderSpan);
+    const textSpan = document.createElement('span');
+    div.appendChild(textSpan);
+    area.appendChild(div);
+    area.scrollTop = area.scrollHeight;
+    typewriter(textSpan, text, 50, callback);
+}
+
+function appendSystem(text, callback) {
+    const area = document.getElementById('conversationArea');
+    const div = document.createElement('div');
+    div.className = 'system-msg';
+    area.appendChild(div);
+    area.scrollTop = area.scrollHeight;
+    typewriter(div, text, 50, callback);
+}
+
+function processNextMessage() {
+    if (!activeDialogue || messageIndex >= activeDialogue.messages.length) {
+        document.getElementById('inputArea').classList.add('hidden');
+        return;
+    }
+    const msg = activeDialogue.messages[messageIndex];
+    if (msg.type === 'player') {
+        const input = document.getElementById('msgInput');
+        input.value = msg.text;
+        input.focus();
+    } else if (msg.type === 'system') {
+        appendSystem(msg.text, () => {
+            messageIndex++;
+            processNextMessage();
+        });
+    } else if (msg.type === 'itemAction') {
+        waitingForItem = msg;
+        renderBackpackMini();
+    } else if (msg.type === 'actionButton') {
+        showActionButton(msg.text, msg.target);
+        messageIndex++;
+    } else if (msg.side) {
+        if (msg.html) {
+            appendMessageImmediate(msg.side, msg.sender, msg.text);
+            messageIndex++;
+            processNextMessage();
+        } else {
+            appendMessage(msg.side, msg.sender, msg.text, () => {
+                messageIndex++;
+                processNextMessage();
+            });
+        }
+    }
+}
+
+function sendMessage() {
+    if (isTyping) return;
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    if (activeDialogue && messageIndex < activeDialogue.messages.length) {
+        const currentMsg = activeDialogue.messages[messageIndex];
+        if (currentMsg.type === 'player') {
+            appendMessage('right', playerName, text, () => {
+                messageIndex++;
+                processNextMessage();
+            });
+            return;
+        }
+    }
+    appendMessage('right', playerName, text);
+}
+
+function renderBackpackMini() {
+    const container = document.getElementById('backpackMini');
+    if (!waitingForItem) { container.innerHTML = ''; return; }
+    const items = GameState.backpack;
+    let html = '';
+    items.forEach(item => {
+        let label = item;
+        if (item === 'studyKey') label = '🔑 钥匙';
+        else if (item === 'map') label = '🗺 地图';
+        else if (item === 'diary') label = '📔 日记本';
+        else if (item === 'timeConverter') label = '⏳ 转换器';
+        html += `<span class="mini-item" onclick="useMiniItem('${item}')">${label}</span>`;
+    });
+    container.innerHTML = html;
+}
+
+function useMiniItem(itemId) {
+    if (!waitingForItem || isTyping) return;
+    if (itemId === waitingForItem.itemRequired) {
+        waitingForItem.successMessages.forEach(msg => {
+            if (msg.type === 'player') appendMessage('right', playerName, msg.text);
+            else if (msg.type === 'system') appendSystem(msg.text);
+        });
+        if (waitingForItem.actionButton) {
+            showActionButton(waitingForItem.actionButton.text, waitingForItem.actionButton.target);
+        }
+        waitingForItem = null;
+        document.getElementById('backpackMini').innerHTML = '';
+        messageIndex++;
+        finishDialogueIfNeeded();
+    } else {
+        alert('这个物品不对哦');
+    }
+}
+
+function showActionButton(text, target) {
+    const btnDiv = document.getElementById('actionButtons');
+    btnDiv.innerHTML = `<button class="action-btn" onclick="goToPage('${target}')">${text}</button>`;
+    document.getElementById('inputArea').classList.add('hidden');
+}
+
+function goToPage(target) {
+    if (activeDialogue) {
+        let stage = 0;
+        for (let i = 1; i <= 5; i++) {
+            if (dialogueData[i] === activeDialogue) { stage = i; break; }
+        }
+        if (stage === 4 && !GameState.pageCCompleted) {
+            GameState.diaryViewed4 = true;
+        } else if (stage > 0 && stage < 5) {
+            GameState.diaryDialogues[stage] = true;
+            GameState.diaryStage = stage + 1;
+            GameState.diaryRedDotSeen = true;
+        }
+        saveGame();
+    }
+    if (target === 'pageB') window.location.href = 'pageB.html';
+    else if (target === 'pageC') window.location.href = 'pageC.html';
+}
+
+function goBack() {
+    if (GameState.diaryDialogues['5'] || dialogueData[5].condition()) {
+        window.location.href = 'pageA.html';
+    } else {
+        window.location.href = 'pageB.html';
+    }
+}
+
+function finishDialogueIfNeeded() {
+    if (activeDialogue && messageIndex >= activeDialogue.messages.length) {
+        let stage = 0;
+        for (let i = 1; i <= 5; i++) {
+            if (dialogueData[i] === activeDialogue) { stage = i; break; }
+        }
+        if (stage === 4 && !GameState.pageCCompleted) {
+            GameState.diaryViewed4 = true;
+        } else if (stage > 0 && stage < 5) {
+            GameState.diaryDialogues[stage] = true;
+            GameState.diaryStage = stage + 1;
+        }
+        saveGame();
+    }
+}
+
+initDialogue();
+if (dialogueData[5].condition()) {
+    document.getElementById('conversationArea').innerHTML = '';
+    appendSystemImmediate(dialogueData[5].messages[0].text);
+    document.getElementById('inputArea').classList.add('hidden');
+    document.getElementById('actionButtons').innerHTML = '';
+}
+</script>
+</body>
+</html>

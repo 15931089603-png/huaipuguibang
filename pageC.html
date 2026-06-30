@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旧岁轩 - 古董店</title>
+    <style>
+        :root {
+            --bg: #fdf8ec; --text: #3a3528; --accent: #b8a87d; --border: #d4c9a8;
+            --card-bg: #fffef9; --shadow: 0 2px 12px rgba(60,50,30,0.08);
+            --font-heading: "STKaiti","楷体",serif; --font-body: "STKaiti","楷体",serif;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background-color:#f7f1e0;font-family:var(--font-body);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;line-height:1.6;position:relative}
+        body::before{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:700px;background:radial-gradient(ellipse, rgba(255,250,235,0.55) 0%, rgba(255,245,220,0.25) 35%, transparent 70%);pointer-events:none;z-index:0}
+        .main-container{width:100%;max-width:1100px;background:rgba(255,252,245,0.85);backdrop-filter:blur(4px);min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1;box-shadow:0 0 40px rgba(100,80,40,0.08)}
+        .top-nav{display:flex;align-items:center;padding:12px 20px;background:rgba(255,252,245,0.9);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+        .menu-btn{font-size:1.6rem;cursor:pointer;background:none;border:none;color:var(--text);margin-right:15px}
+        .side-menu{position:fixed;top:0;left:-280px;width:260px;height:100%;background:#fdfaf2;box-shadow:2px 0 15px rgba(0,0,0,0.2);z-index:200;transition:left 0.3s;padding:20px;display:flex;flex-direction:column}
+        .side-menu.open{left:0}
+        .side-menu a{display:block;padding:12px 10px;border-bottom:1px solid var(--border);cursor:pointer;text-decoration:none;color:var(--text);letter-spacing:2px;transition:background 0.2s}
+        .side-menu a:hover{background:#f5efe0}
+        .hero-banner{position:relative;width:100%;overflow:hidden}
+        .hero-banner img{width:100%;display:block;mask-image:linear-gradient(to bottom, black 70%, transparent 100%);-webkit-mask-image:linear-gradient(to bottom, black 70%, transparent 100%)}
+        .hero-title{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);font-family:var(--font-heading);font-size:3.5rem;letter-spacing:8px;color:#fff;text-shadow:2px 2px 8px rgba(0,0,0,0.6);white-space:nowrap}
+        .search-bar{display:flex;margin:20px auto;max-width:500px;width:90%}
+        .search-bar input{flex:1;padding:10px 16px;border:2px solid var(--border);border-right:none;border-radius:6px 0 0 6px;background:#fffef9}
+        .search-bar button{padding:10px 20px;background:var(--accent);color:#fff;border:2px solid var(--accent);border-radius:0 6px 6px 0;cursor:pointer}
+        .content-section{padding:20px 32px}
+        .back-btn{display:inline-block;padding:6px 14px;background:rgba(253,252,247,0.8);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:0.85rem;margin-bottom:16px}
+        .video-monitor{
+            display:flex; flex-direction:column; align-items:center; margin-top:20px;
+            position:relative; z-index:0;
+        }
+        .video-buttons{display:flex; gap:15px; margin-bottom:15px}
+        .video-buttons button{padding:8px 20px;border:2px solid var(--accent);background:transparent;color:var(--accent);border-radius:6px;cursor:pointer;font-weight:bold;transition:0.2s}
+        .video-buttons button.active{background:var(--accent);color:#fff}
+        .video-buttons button.success::after{content:' ✔';color:green}
+        video{
+            width:100%; max-width:700px; border-radius:8px;
+            box-shadow:var(--shadow); background:#000;
+            position:relative; z-index:0;
+        }
+        .diary-popup{position:fixed; bottom:80px; right:20px; background:#fdfaf2; border:2px solid #c4b898; border-radius:10px; padding:15px; z-index:160; display:none; box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+        .diary-popup.open{display:block}
+        .modal-overlay{position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(20,16,10,0.65); z-index:300; display:flex; align-items:center; justify-content:center}
+        .modal-overlay.hidden{display:none}
+        .modal-dialog{background:#fef9ed; border:3px solid #c9a87c; border-radius:10px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto; padding:30px; position:relative; z-index:301}
+        .backpack-btn{position:fixed; bottom:24px; left:24px; z-index:250; width:52px; height:52px; background:#c4a87c; border:3px solid #8b6f4e; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#3a2810; cursor:pointer}
+        .backpack-panel{position:fixed; bottom:84px; left:20px; background:#fdfaf2; border:2px solid #c4b898; border-radius:8px; padding:16px; min-width:180px; display:none; z-index:249; box-shadow:0 6px 20px rgba(0,0,0,0.2)}
+        .backpack-panel.open{display:block}
+        .year-switch{position:absolute; top:12px; left:20px; z-index:10; font-family:var(--font-heading); background:rgba(253,252,247,0.9); padding:4px 12px; border-radius:4px; border:1px solid #d4ceba; display:none}
+        .year-switch.show{display:block}
+        .hidden{display:none !important}
+        .article-content{line-height:1.9;text-align:justify}
+        .article-content img{max-width:200px;float:left;margin:0 15px 10px 0;border-radius:6px}
+        .footer-nav{background:#1a1a1a;color:#ccc;padding:20px;display:flex;flex-wrap:wrap;justify-content:space-around;margin-top:auto}
+        .footer-col{margin:10px}
+        .footer-col h4{color:#fff;margin-bottom:10px}
+        .footer-col p{cursor:pointer;margin:5px 0;font-size:0.9rem}
+        .footer-col p:hover{color:#fff}
+        .footer-bottom{background:#1a1a1a;color:#666;text-align:center;padding:10px;font-size:0.8rem;border-top:1px solid #333}
+    </style>
+</head>
+<body>
+<div class="main-container" id="mainContainer">
+    <div class="side-menu" id="sideMenu">
+        <button onclick="toggleMenu()" style="align-self:flex-end;background:none;border:none;font-size:1.5rem;cursor:pointer">✕</button>
+        <a onclick="menuAction('intro')">简介</a>
+        <a onclick="menuAction('exhibits')">展品信息</a>
+        <a onclick="menuAction('events')">精彩活动</a>
+        <a onclick="menuAction('news')">新闻公告</a>
+        <a onclick="openLogin(); closeMenu()">内部系统</a>
+    </div>
+
+    <div class="year-switch" id="yearBadge">
+        2026年 ▾
+        <select onchange="switchYear(this.value)" style="margin-left:5px;background:transparent;border:1px solid #d4ceba;padding:2px">
+            <option value="2026" selected>2026</option>
+            <option value="1926">1926</option>
+        </select>
+    </div>
+
+    <div id="homeContent">
+        <div class="top-nav">
+            <button class="menu-btn" onclick="toggleMenu()">☰</button>
+            <span style="font-family:var(--font-heading);letter-spacing:3px">旧岁轩</span>
+        </div>
+        <div class="hero-banner">
+            <img src="pic19.jpg" alt="旧岁轩">
+            <div class="hero-title">旧岁轩</div>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="搜索...">
+            <button onclick="performSearch()">搜索</button>
+        </div>
+        <div class="content-section" id="intro"><h3>简介</h3><p>旧岁轩，始建于1902年，百年中西合璧老宅。原为文人藏古雅集之地，现作为古董文物展馆，陈列历代古物，配套座谈交流空间，集文物展示、鉴赏研讨、文化传承于一体。</p></div>
+        <div class="content-section" style="display:flex;gap:20px;flex-wrap:wrap" id="exhibits">
+            <div style="flex:1;min-width:200px;text-align:center"><img src="pic20.jpg" style="width:100%;border-radius:8px" onclick="alert('展品信息页面待开发')"><p style="margin-top:8px;cursor:pointer" onclick="alert('展品信息页面待开发')">展品信息 →</p></div>
+            <div style="flex:1;min-width:200px;text-align:center" id="events"><img src="pic21.jpg" style="width:100%;border-radius:8px" onclick="alert('精彩活动页面待开发')"><p style="margin-top:8px;cursor:pointer" onclick="alert('精彩活动页面待开发')">精彩活动 →</p></div>
+        </div>
+        <div class="content-section" id="news">
+            <h3>新闻咨询</h3>
+            <ul style="list-style:none;padding:0">
+                <li style="cursor:pointer;padding:8px 0;border-bottom:1px solid #ddd" onclick="openNewsArticle('article1')">百年风华续新章｜1902旧岁轩活化传承，守护城市文脉</li>
+                <li style="cursor:pointer;padding:8px 0;border-bottom:1px solid #ddd" onclick="openNewsArticle('article2')">一轩藏百年岁月，一馆载千年古物——旧岁轩文化纪实</li>
+                <li style="cursor:pointer;padding:8px 0;border-bottom:1px solid #ddd;font-weight:bold" onclick="openAwardPage()">旧岁轩2026年第二季度优秀员工表彰公告</li>
+                <li style="cursor:pointer;padding:8px 0;border-bottom:1px solid #ddd" onclick="openNewsArticle('article4')">深耕文物传承，赋能文化交流：旧岁轩年度工作综述</li>
+                <li style="cursor:pointer;padding:8px 0;border-bottom:1px solid #ddd" onclick="openNewsArticle('article5')">古韵新生！百年旧岁轩焕发新时代文化活力</li>
+                <li style="cursor:pointer;padding:8px 0;border-bottom:1px solid #ddd" onclick="openNewsArticle('article6')">时光沉淀匠心，文脉薪火相传——走进百年古建旧岁轩</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="employeePage" class="hidden content-section">
+        <button class="back-btn" onclick="showHome()">← 返回首页</button>
+        <div style="margin-bottom:10px;color:#8a7a5a">员工风采</div>
+        <h2>坚守监控岗 守护一方安——优秀员工周强风采表彰</h2>
+        <div class="article-content">
+            <img src="pic22.jpg" alt="周强">
+            <p>周强，<b>1969年5月19日</b>出生，现任旧岁轩古玩城监控室值班员。自上岗以来，他始终坚守安保值守一线，恪尽职守、默默奉献，以高度的责任心守护园区平安，展现出爱岗敬业、踏实务实的优秀员工风貌，特此予以表彰。</p>
+            <p>监控岗位是旧岁轩古玩城安全运营的关键防线。古玩城内藏品贵重、人员流动大，安防工作责任重、标准高。多年来，周强始终保持严谨认真的工作态度，严格遵守值班管理制度，坚守岗位、履职到位。他全天候紧盯监控画面，细致巡查园区各区域动态，认真做好值班记录与交接班登记，及时排查各类安全隐患，做到事事有记录、件件有落实。</p>
+            <p>工作中，他耐得住枯燥、守得住责任，日夜坚守幕后岗位。无论是日常营业时段的秩序监控、隐患巡查，还是夜间闭馆后的安全值守，他始终保持高度警惕，熟练掌握监控设备操作与日常维护技能，主动排查设备运行问题，保障园区安防系统稳定可靠，有效筑牢了旧岁轩的安全防护屏障。</p>
+            <p>周强同志为人诚恳、作风踏实，团结同事、服从安排，数十年如一日扎根平凡岗位，默默坚守、无私奉献。他没有惊天的业绩，却用日复一日的坚持、一丝不苟的履职，扛起安全值守重任，用平凡坚守彰显敬业担当。</p>
+            <p>希望周强同志珍惜荣誉、再接再厉、持续坚守。同时号召全体员工以他为榜样，立足本职、踏实肯干、履职尽责，共同守护旧岁轩古玩城安全、稳定、有序运营。</p>
+        </div>
+    </div>
+
+    <div id="newsArticlePage" class="hidden content-section">
+        <button class="back-btn" onclick="showHome()">← 返回首页</button>
+        <div id="newsArticleContent"></div>
+    </div>
+
+    <div id="awardPage" class="hidden content-section">
+        <button class="back-btn" onclick="showHome()">← 返回首页</button>
+        <h3>旧岁轩2026年第二季度优秀员工表彰公告</h3>
+        <p>全体在岗工作人员：</p>
+        <p>2026年第二季度，旧岁轩各项文旅接待、文物管护、安全值守、后勤保障、行政运营工作有序开展。全体员工立足自身岗位，认真完成展厅开放、藏品鉴定、访客服务、古建安防、物资管理、设备运维等日常工作，在多场文物交流座谈会、展品陈列维护工作中主动担当、踏实奉献，整体服务水平与场馆运营成效稳步提升。</p>
+        <p>本季度工作期间，各岗位涌现出一批爱岗敬业、实绩突出的优秀工作人员。他们恪守岗位职责，对待工作细致负责，主动配合场馆各项重点任务，在文物保护、游客服务、园区安全、后勤服务等板块作出亮眼贡献，充分展现出旧岁轩工作人员良好的职业素养与精神风貌。</p>
+        <p>为弘扬爱岗敬业、争先创优的工作风气，发挥先进模范的示范引领作用，经各部门考核推荐、运营中心综合评议，场馆研究决定，对本季度表现优异的员工予以正式表彰。后续将发布完整表彰人员公示，公布获奖人员及先进工作事迹。</p>
+        <p>希望受到表彰的人员珍惜荣誉、持续精进，在后续工作中再创佳绩；同时号召全体员工以先进同事为榜样，坚守岗位初心，用心守护百年旧岁轩馆藏与建筑，齐心协力推动场馆文化服务工作稳步发展。</p>
+        <p style="text-align:right">旧岁轩文博运营中心<br>2026年06月29日</p>
+        <a href="#" onclick="downloadFile()" style="color:var(--accent)">📎 旧岁轩2026年第二季度表彰人员公示.xlsx</a>
+    </div>
+
+    <div id="zhouMonitorPage" class="hidden content-section">
+        <button class="back-btn" onclick="showHome()">← 返回首页</button>
+        <h1 style="text-align:center;margin:20px 0">欢迎你，周强</h1>
+        <h2 style="text-align:center;margin-bottom:30px">旧岁轩周边监控系统</h2>
+        <div class="video-monitor">
+            <div class="video-buttons">
+                <button id="mon1Btn" onclick="switchMonitor(1)">监控1</button>
+                <button id="mon2Btn" onclick="switchMonitor(2)">监控2</button>
+                <button id="mon3Btn" onclick="switchMonitor(3)">监控3</button>
+            </div>
+            <video id="mainVideo" src="" loop muted></video>
+        </div>
+    </div>
+
+    <div class="footer-nav">
+        <div class="footer-col"><h4>支持</h4><p>联系我们</p><p>常见问题</p></div>
+        <div class="footer-col"><h4>企业</h4><p>隐私政策</p><p>企业管理</p><p>新闻讯息</p></div>
+        <div class="footer-col"><h4>更多</h4><p>安全政策</p><p>使用条款及细则</p></div>
+    </div>
+    <div class="footer-bottom">内容均为虚构，仅供游戏体验<br>©爆炒霸王龙🦖制作</div>
+</div>
+
+<div class="modal-overlay hidden" id="loginModal">
+    <div class="modal-dialog">
+        <h3>内部系统登录</h3>
+        <input type="text" id="workerId" placeholder="工号" style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc"><br>
+        <input type="password" id="password" placeholder="密码" style="width:100%;padding:10px;margin:10px 0;border:1px solid #ccc"><br>
+        <button onclick="doLogin()" style="padding:10px 25px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer">确认</button>
+        <span style="margin-left:15px;color:#8a7a5a;cursor:pointer" onclick="alert('默认密码为8位出生年月日')">忘记密码</span>
+        <button onclick="closeLogin()" style="position:absolute;top:10px;right:15px;background:none;border:none;font-size:1.5rem;cursor:pointer">✕</button>
+    </div>
+</div>
+
+<div class="modal-overlay hidden" id="hintModal">
+    <div class="modal-dialog">
+        <p>1.点击日记本，向孟砚秋发送信息，发送“行动开始”开始潜行。</p>
+        <p>2.按照1-3的顺序观察监控录像，在敌人眼线没有观察前方道路时，发送“行动”。</p>
+        <p>3.顺利通过三个路段，即为成功。</p>
+        <button onclick="confirmHint()" style="margin-top:15px;padding:8px 25px;background:var(--accent);color:#fff;border:none;border-radius:6px">确认</button>
+    </div>
+</div>
+
+<div class="diary-popup" id="diaryPopup">
+    <input type="text" id="diaryMsg" readonly style="width:200px;padding:8px;border:1px solid #c4b898">
+    <button onclick="sendDiaryMsg()" style="margin-left:5px;padding:8px 15px;background:var(--accent);color:#fff;border:none;border-radius:4px">发送</button>
+</div>
+
+<button class="backpack-btn" id="backpackBtn" onclick="toggleBackpack()">🎒</button>
+<div class="backpack-panel" id="backpackPanel">
+    <h4>📦 背包</h4>
+    <div id="backpackItems"></div>
+</div>
+
+<script>
+const currentSlot = sessionStorage.getItem('currentSlot');
+if (!currentSlot) window.location.href = 'save.html';
+const STORAGE_KEY = `slot${currentSlot}_data`;
+const GameState = {
+    announcementSeen: false, clickedHotspots: {}, backpack: [],
+    diaryUnlocked: false, diaryConversationDone: false, studyKeyAvailable: false,
+    pic7Pasted: false, passwordSolved: false, readerPages: {},
+    conversationStage: 0, bookSequence: [], secretUnlocked: false,
+    drawerPuzzleSolved: false, telegraphSolved: false, timeConverterCollected: false,
+    drawerRedDot: false, drawerRedDotSeen: false, diaryRedDotSeen: false,
+    diaryStage: 1, diaryDialogues: {}, visitorName: '玩家', drawerNoteSolved: false,
+    remainingChars: [], slotValues: ['','','','','','','',''], pageCCompleted: false
+};
+function loadGame(){ let s=localStorage.getItem(STORAGE_KEY); if(s) Object.assign(GameState,JSON.parse(s)); }
+function saveGame(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(GameState)); }
+loadGame();
+
+function toggleMenu(){ document.getElementById('sideMenu').classList.toggle('open'); }
+function closeMenu(){ document.getElementById('sideMenu').classList.remove('open'); }
+function menuAction(id){ closeMenu(); setTimeout(() => document.getElementById(id).scrollIntoView({behavior:'smooth'}), 100); }
+function showHome(){
+    document.getElementById('homeContent').classList.remove('hidden');
+    document.getElementById('employeePage').classList.add('hidden');
+    document.getElementById('zhouMonitorPage').classList.add('hidden');
+    document.getElementById('newsArticlePage').classList.add('hidden');
+    document.getElementById('awardPage').classList.add('hidden');
+}
+
+// 视频隐藏/显示控制
+function hideVideo(){
+    const video = document.getElementById('mainVideo');
+    if(video){
+        video.pause();
+        video.style.display = 'none';
+    }
+}
+function showVideo(){
+    const video = document.getElementById('mainVideo');
+    if(video){
+        video.style.display = '';
+    }
+}
+
+function openLogin(){ 
+    hideVideo();
+    document.getElementById('loginModal').classList.remove('hidden'); 
+}
+function closeLogin(){ 
+    document.getElementById('loginModal').classList.add('hidden'); 
+    showVideo();
+}
+
+function doLogin(){
+    const wid = document.getElementById('workerId').value.trim();
+    const pwd = document.getElementById('password').value.trim();
+    if(wid === '1829637' && pwd === '19690519'){
+        closeLogin();
+        document.getElementById('homeContent').classList.add('hidden');
+        document.getElementById('employeePage').classList.add('hidden');
+        document.getElementById('zhouMonitorPage').classList.remove('hidden');
+        document.getElementById('newsArticlePage').classList.add('hidden');
+        document.getElementById('awardPage').classList.add('hidden');
+        initMonitorPage();
+    } else { alert('工号或密码错误'); }
+}
+
+function performSearch(){
+    const kw = document.getElementById('searchInput').value.trim();
+    if(kw === '周强'){
+        document.getElementById('homeContent').classList.add('hidden');
+        document.getElementById('employeePage').classList.remove('hidden');
+        document.getElementById('zhouMonitorPage').classList.add('hidden');
+        document.getElementById('newsArticlePage').classList.add('hidden');
+        document.getElementById('awardPage').classList.add('hidden');
+    } else { alert('搜不到Σ( ° △ °|||)︴'); }
+}
+
+function openNewsArticle(type){
+    document.getElementById('homeContent').classList.add('hidden');
+    document.getElementById('newsArticlePage').classList.remove('hidden');
+    document.getElementById('employeePage').classList.add('hidden');
+    document.getElementById('zhouMonitorPage').classList.add('hidden');
+    document.getElementById('awardPage').classList.add('hidden');
+    const content = document.getElementById('newsArticleContent');
+    if(type === 'award'){ openAwardPage(); return; }
+    content.innerHTML = `<h3>${type}</h3><p>文章内容待补充...</p>`;
+}
+function openAwardPage(){
+    document.getElementById('homeContent').classList.add('hidden');
+    document.getElementById('awardPage').classList.remove('hidden');
+    document.getElementById('employeePage').classList.add('hidden');
+    document.getElementById('zhouMonitorPage').classList.add('hidden');
+    document.getElementById('newsArticlePage').classList.add('hidden');
+}
+function downloadFile(){
+    const content = `旧岁轩2026年第二季度表彰人员公示\n姓名,部门,奖项\n周强,安保部,优秀员工\n...`;
+    const blob = new Blob([content], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = '旧岁轩2026年第二季度表彰人员公示.xlsx';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function toggleBackpack(){ document.getElementById('backpackPanel').classList.toggle('open'); updateBackpackUI(); }
+function updateBackpackUI(){
+    const container = document.getElementById('backpackItems');
+    let html = '';
+    if(GameState.backpack.length===0) html='<div style="color:#a09070">空空如也</div>';
+    else GameState.backpack.forEach(item=>{
+        let label=item;
+        if(item==='diary') label='📔 日记本';
+        else if(item==='map') label='🗺 地图';
+        else if(item==='studyKey') label='🔑 钥匙';
+        else if(item==='timeConverter') label='⏳ 时空转换器';
+        html+=`<div class="backpack-item" onclick="useItem('${item}')">${label}</div>`;
+    });
+    container.innerHTML=html;
+    document.getElementById('backpackBtn').style.display=GameState.backpack.length>0?'flex':'none';
+}
+function useItem(id){
+    if(id==='timeConverter'){ document.getElementById('yearBadge').classList.add('show'); }
+    else if(id==='diary'){ if(currentYear === '1926') showDiaryPopup(); else alert('日记本暂时无法使用'); }
+    document.getElementById('backpackPanel').classList.remove('open');
+}
+
+let currentYear = '2026';
+let hintConfirmed = false;
+let videoStarted = false;
+function switchYear(val){
+    currentYear = val;
+    if(currentYear === '1926'){
+        hintConfirmed = false;
+        videoStarted = false;
+        const video = document.getElementById('mainVideo');
+        video.pause();
+        video.src = '';
+        showVideo(); // 确保可见但无内容
+        document.getElementById('hintModal').classList.remove('hidden');
+        hideVideo(); // 弹窗时隐藏视频
+    } else {
+        hintConfirmed = true;
+        videoStarted = true;
+        showVideo();
+        loadVideo();
+    }
+}
+function confirmHint(){
+    document.getElementById('hintModal').classList.add('hidden');
+    hintConfirmed = true;
+    showVideo(); // 弹窗关闭后显示视频区域
+}
+
+let currentMonitor = 1;
+let monitorSuccess = [false, false, false];
+let diaryStep = 0;
+
+function initMonitorPage(){
+    monitorSuccess = [false, false, false]; diaryStep = 0; updateMonitorButtons();
+    if(GameState.timeConverterCollected) document.getElementById('yearBadge').classList.add('show');
+    currentYear = '2026';
+    hintConfirmed = true;
+    videoStarted = true;
+    showVideo();
+    loadVideo();
+}
+function switchMonitor(num){
+    if(currentYear === '1926' && !videoStarted && num !== 1){
+        alert('请从监控1开始');
+        return;
+    }
+    currentMonitor = num;
+    if(!videoStarted && hintConfirmed && currentYear === '1926'){
+        videoStarted = true;
+    }
+    if(videoStarted) loadVideo();
+    if(currentYear === '1926' && diaryStep === num && !monitorSuccess[num-1]){
+        showDiaryPopup();
+    }
+}
+function loadVideo(){
+    const video = document.getElementById('mainVideo');
+    if(!videoStarted) return;
+    let src = '';
+    if(currentYear === '2026') src = 'video4.mp4';
+    else { if(currentMonitor===1) src='video1.mp4'; else if(currentMonitor===2) src='video2.mp4'; else src='video3.mp4'; }
+    video.src = src;
+    video.load();
+    video.play();
+}
+function showDiaryPopup(){
+    const popup = document.getElementById('diaryPopup');
+    const input = document.getElementById('diaryMsg');
+    input.value = diaryStep === 0 ? '行动开始' : '行动';
+    popup.classList.add('open');
+}
+function sendDiaryMsg(){
+    if(currentYear !== '1926') return;
+    const input = document.getElementById('diaryMsg');
+    const msg = input.value.trim();
+    if(diaryStep === 0 && msg === '行动开始'){
+        diaryStep = 1;
+        input.value = '行动';
+        return;
+    }
+    if(diaryStep >= 1 && diaryStep <= 3 && msg === '行动'){
+        const video = document.getElementById('mainVideo');
+        const t = video.currentTime;
+        let success = false;
+        if(currentMonitor === 1 && t >= 3 && t <= 8) success = true;
+        else if(currentMonitor === 2 && t >= 1 && t <= 7) success = true;
+        else if(currentMonitor === 3 && t >= 7 && t <= 9) success = true;
+        if(success){
+            monitorSuccess[currentMonitor-1] = true;
+            updateMonitorButtons();
+            diaryStep++;
+            if(diaryStep > 3){
+                alert('✅行动成功');
+                GameState.pageCCompleted = true;
+                const idx = GameState.backpack.indexOf('timeConverter');
+                if(idx > -1) GameState.backpack.splice(idx, 1);
+                GameState.timeConverterCollected = false;
+                saveGame();
+                window.location.href = 'pageA.html';
+            } else {
+                document.getElementById('diaryPopup').classList.remove('open');
+                switchMonitor(diaryStep);
+            }
+        } else {
+            alert('❌️行动失败');
+            monitorSuccess = [false, false, false]; diaryStep = 1; currentMonitor = 1;
+            updateMonitorButtons(); videoStarted = true; loadVideo();
+            document.getElementById('diaryPopup').classList.remove('open');
+        }
+    }
+}
+function updateMonitorButtons(){
+    for(let i=1;i<=3;i++){
+        const btn = document.getElementById(`mon${i}Btn`);
+        btn.classList.remove('success');
+        if(monitorSuccess[i-1]) btn.classList.add('success');
+    }
+}
+updateBackpackUI();
+</script>
+</body>
+</html>

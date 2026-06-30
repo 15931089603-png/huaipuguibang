@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>怀璞楼 · 终章</title>
+    <style>
+        :root {
+            --accent: #c9a87c;
+            --font-heading: "STKaiti","楷体",serif;
+            --font-body: "STKaiti","楷体",serif;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            background-color:#f7f1e0; font-family:var(--font-body); color:#3a3528;
+            min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+            transition: background 0.5s;
+        }
+        /* 公告卡片 */
+        .announce-card{
+            background:#fef9ed; border:3px solid #c9a87c; border-radius:10px;
+            max-width:650px; width:90%; padding:40px 30px; position:relative;
+            box-shadow:0 12px 40px rgba(0,0,0,0.15);
+            animation: slideUp 0.4s ease;
+        }
+        @keyframes slideUp{ from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+        .announce-badge{
+            display:inline-block; background:#c94b3a; color:#fff; padding:4px 12px;
+            font-weight:bold; letter-spacing:2px; margin-bottom:20px; border-radius:4px;
+        }
+        .announce-title{
+            text-align:center; font-family:var(--font-heading); font-size:1.6rem;
+            margin-bottom:20px; letter-spacing:2px; color:#3a2810;
+        }
+        .announce-body{
+            line-height:1.9; text-indent:2em; margin-bottom:16px; font-size:1rem;
+        }
+        .announce-footer{
+            text-align:right; margin-top:25px; color:#5a4a30;
+        }
+        .btn-continue{
+            display:block; margin:30px auto 10px; padding:10px 30px;
+            background:var(--accent); color:#fff; border:none; border-radius:25px;
+            cursor:pointer; font-family:var(--font-body); font-size:1rem;
+            letter-spacing:2px; transition: background 0.2s;
+        }
+        .btn-continue:hover{ background:#b8956e; }
+
+        /* 结局画面 */
+        .ending-screen{
+            display:none; width:100%; height:100vh; position:fixed; top:0; left:0;
+            background:#1a1a1a; flex-direction:column; align-items:center; justify-content:center;
+            z-index:10;
+        }
+        .ending-screen.active{ display:flex; }
+        .ending-title{
+            font-family:var(--font-heading); font-size:2.5rem; letter-spacing:4px;
+            color:#c9a87c; margin-bottom:40px;
+        }
+        .ending-calligraphy{
+            font-family: "STKaiti","楷体","华文楷体","LiSu","隶书",serif;
+            font-size:3.5rem; color:#c9a87c; letter-spacing:8px; text-shadow:0 0 8px rgba(201,168,124,0.5);
+            margin-bottom:80px; text-align:center; line-height:1.5;
+        }
+        .ending-note{
+            font-size:1rem; color:#b8a87d; letter-spacing:2px; margin-top:40px;
+            font-family: var(--font-body);
+        }
+    </style>
+</head>
+<body>
+    <!-- 公告卡片 -->
+    <div class="announce-card" id="announceCard">
+        <div class="announce-badge">公 告</div>
+        <h2 class="announce-title">关于怀璞楼文物寻回暨定窑白瓷划花莲纹长瓶首展圆满落幕的公告</h2>
+        <p class="announce-body" id="announceBody1"></p>
+        <p class="announce-body" id="announceBody2"></p>
+        <p class="announce-body">定窑白瓷划花莲纹长瓶釉色温润素雅、划花纹饰灵动精巧，是宋代定窑制瓷工艺的经典遗存，兼具极高的艺术价值与历史研究价值。此次首展顺利开展，让广大市民近距离领略千年白瓷的雅致风骨，感受传统工艺的独特魅力。</p>
+        <p class="announce-body">文脉永续，薪火相传。在此，怀璞楼向所有热心参与文物寻回工作的市民致以最诚挚的感谢！未来我们将持续做好文物保护、展览推广与文化传播工作，坚守文脉初心，传承中华优秀传统文化，让千年古韵持续浸润人心、生生不息。</p>
+        <p class="announce-body">特此公告。</p>
+        <p class="announce-footer">怀璞楼<br>2026年6月29日</p>
+        <button class="btn-continue" onclick="showEnding()">点击继续 →</button>
+    </div>
+
+    <!-- 结局画面 -->
+    <div class="ending-screen" id="endingScreen">
+        <h1 class="ending-title">结局 · True Ending</h1>
+        <div class="ending-calligraphy" id="calligraphyText"></div>
+        <div class="ending-note" id="endingNote" style="display:none;">buaacrketoonseq</div>
+    </div>
+
+    <script>
+        // 读取存档获得参观人姓名
+        const currentSlot = sessionStorage.getItem('currentSlot');
+        let visitorName = '玩家';
+        if (currentSlot) {
+            const saved = localStorage.getItem(`slot${currentSlot}_data`);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    if (data.visitorName) visitorName = data.visitorName;
+                } catch(e) {}
+            }
+        }
+
+        // 构建公告中需要插入姓名的段落
+        const para1 = `近日，怀璞楼馆藏珍贵文物定窑白瓷划花莲纹长瓶顺利失而复得，文物首展活动已圆满举行。`;
+        const para2 = `本次珍贵古瓷的成功寻回，离不开各位热心市民<span style="font-weight:bold;">${visitorName}</span>的积极协助与无私助力。众多市民心系文物保护、守望本土文脉，主动提供线索、积极配合核查工作，以点滴善意汇聚成守护古韵的力量，让这件承载宋代匠心的珍贵文物得以平安归藏、重焕光彩。`;
+        document.getElementById('announceBody1').innerHTML = para1;
+        document.getElementById('announceBody2').innerHTML = para2;
+
+        function showEnding() {
+            // 隐藏公告卡片
+            document.getElementById('announceCard').style.display = 'none';
+            // 显示结局画面
+            const endingScreen = document.getElementById('endingScreen');
+            endingScreen.classList.add('active');
+            // 打字机效果显示 “河清海晏，\n家国无恙。”
+            const calligraphyEl = document.getElementById('calligraphyText');
+            const text = '河清海晏，家国无恙。';
+            let i = 0;
+            function typeChar() {
+                if (i < text.length) {
+                    const char = text.charAt(i);
+                    if (char === '，') {
+                        // 逗号后换行
+                        calligraphyEl.innerHTML += '，<br>';
+                    } else {
+                        calligraphyEl.innerHTML += char;
+                    }
+                    i++;
+                    setTimeout(typeChar, 150);
+                } else {
+                    // 显示底部小字
+                    document.getElementById('endingNote').style.display = 'block';
+                }
+            }
+            typeChar();
+        }
+    </script>
+</body>
+</html>

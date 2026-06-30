@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云笺书局</title>
+    <style>
+        :root {
+            --bg: #faf8f2;
+            --text: #3a3528;
+            --accent: #b8a87d;
+            --brown: #5a4a30;
+            --font-heading: "STKaiti","楷体",serif;
+            --font-body: "STKaiti","楷体",serif;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            background-color:#f0ebe0;
+            font-family:var(--font-body);
+            color:var(--text);
+            min-height:100vh;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            line-height:1.6;
+        }
+        .page-container{
+            width:100%;
+            max-width:1000px;
+            background:#fefdf8;
+            box-shadow:0 4px 20px rgba(0,0,0,0.08);
+            min-height:100vh;
+            position:relative;
+        }
+        .back-btn{
+            position:absolute;
+            top:20px;
+            left:20px;
+            padding:6px 14px;
+            background:rgba(253,252,247,0.9);
+            border:1px solid #c4b898;
+            border-radius:4px;
+            cursor:pointer;
+            font-family:var(--font-body);
+            font-size:0.85rem;
+            letter-spacing:1px;
+            color:var(--text);
+            z-index:10;
+        }
+        .back-btn:hover{
+            background:#f0e8d0;
+        }
+        .header-logo{
+            text-align:center;
+            padding:30px 20px 10px;
+        }
+        .header-logo img{
+            max-width:100%;
+            height:auto;
+            width:200px; /* 将图片宽度与书名格总宽度对齐，书名格宽度为200px，这里设定相同 */
+        }
+        .section-title{
+            font-family:var(--font-heading);
+            font-size:1.8rem;
+            letter-spacing:4px;
+            color:var(--brown);
+            text-align:center;
+            margin:30px 0 20px;
+            padding-bottom:10px;
+            border-bottom:1px solid #d4c9a8;
+        }
+        /* 新书上架轮播 */
+        .books-section{
+            display:flex;
+            gap:30px;
+            padding:20px 30px;
+            align-items:flex-start;
+        }
+        .books-left{
+            flex:1;
+            min-width:300px;
+            text-align:center;
+        }
+        .books-left img{
+            max-width:100%;
+            border-radius:8px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.1);
+            transition:opacity 0.3s;
+        }
+        .books-right{
+            width:200px; /* 书名格总宽度 */
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+        }
+        .book-item{
+            padding:12px 15px;
+            background:#f5efe0;
+            border:1px solid #d4c9a8;
+            border-radius:6px;
+            text-align:center;
+            font-family:var(--font-heading);
+            letter-spacing:2px;
+            cursor:pointer;
+            transition:all 0.3s;
+            font-size:1rem;
+        }
+        .book-item.active{
+            background:var(--accent);
+            color:#fff;
+            border-color:var(--accent);
+            font-weight:bold;
+        }
+        /* 关于我们 */
+        .about-row{
+            display:flex;
+            gap:30px;
+            padding:20px 30px;
+            align-items:center;
+        }
+        .about-text{
+            flex:1;
+            line-height:1.9;
+        }
+        .about-text h3{
+            font-family:var(--font-heading);
+            font-size:1.5rem;
+            letter-spacing:3px;
+            color:var(--brown);
+            margin-bottom:10px;
+        }
+        .about-img{
+            flex:1;
+            min-width:250px;
+            text-align:center;
+        }
+        .about-img img{
+            max-width:100%;
+            border-radius:8px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.1);
+        }
+        /* 创艺园地 */
+        .creative-section{
+            display:flex;
+            gap:30px;
+            padding:20px 30px;
+            align-items:flex-start;
+        }
+        .creative-left{
+            flex:1;
+            text-align:center;
+        }
+        .creative-left img{
+            width:100%;
+            border-radius:8px;
+        }
+        .creative-left .caption{
+            font-weight:bold;
+            margin-top:8px;
+            font-size:1rem;
+            color:var(--brown);
+        }
+        .creative-right{
+            flex:1;
+            font-size:1.2rem; /* 字体增大 */
+            line-height:2;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+        }
+        .creative-right p{
+            margin-bottom:10px;
+            /* 一句一换行已通过p标签实现 */
+        }
+        .footer-nav{
+            background:var(--brown);
+            color:#fff;
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:center;
+            gap:20px;
+            padding:15px 20px;
+            font-size:0.9rem;
+            letter-spacing:1px;
+            margin-top:30px;
+        }
+        .footer-nav span{
+            cursor:pointer;
+        }
+        .footer-nav span:hover{
+            text-decoration:underline;
+        }
+        .footer-disclaimer{
+            background:var(--brown);
+            color:#ccc;
+            text-align:center;
+            padding:8px 20px;
+            font-size:0.75rem;
+            border-top:1px solid rgba(255,255,255,0.2);
+        }
+        .footer-copyright{
+            background:var(--brown);
+            color:#aaa;
+            text-align:center;
+            padding:5px 20px 15px;
+            font-size:0.7rem;
+        }
+        @media (max-width:700px){
+            .books-section, .about-row, .creative-section{
+                flex-direction:column;
+            }
+            .books-left{
+                min-width:auto;
+            }
+            .books-right{
+                width:100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page-container">
+    <button class="back-btn" onclick="goToPageA()">← 返回</button>
+
+    <!-- 书店标志，宽度已调整为与书名格总宽度相同（200px） -->
+    <div class="header-logo">
+        <img src="pic23.jpg" alt="云笺书局" style="width:200px;">
+    </div>
+
+    <!-- 新书上架 -->
+    <h2 class="section-title">新书上架</h2>
+    <div class="books-section">
+        <div class="books-left">
+            <img id="bookCover" src="pic26.jpg" alt="书籍封面">
+        </div>
+        <div class="books-right" id="bookList">
+            <div class="book-item" data-img="pic26.jpg">《素食者》</div>
+            <div class="book-item" data-img="pic27.jpg">《人间失格》</div>
+            <div class="book-item" data-img="pic28.jpg">《仁慈的关系》</div>
+            <div class="book-item" data-img="pic29.jpg">《长日将尽》</div>
+            <div class="book-item" data-img="pic30.jpg">《天堂》</div>
+        </div>
+    </div>
+
+    <!-- 关于我们 -->
+    <h2 class="section-title">关于我们</h2>
+    <div class="about-row">
+        <div class="about-text">
+            <h3>云笺书局</h3>
+            <p>展卷云笺，不负怀璞初心。</p>
+            <p>云笺书局是一处静谧的城市书香空间，藏万卷好书，设专属童书馆。在这里，以书养心、以文润情，褪去浮躁、回归本璞，让每一次翻卷，都是与美好的温柔相遇。</p>
+        </div>
+        <div class="about-img">
+            <img src="pic24.jpg" alt="云笺书局">
+        </div>
+    </div>
+    <div class="about-row" style="flex-direction:row-reverse">
+        <div class="about-text">
+            <h3>云卷咖啡</h3>
+            <p>藏于书局内的治愈咖啡角落。</p>
+            <p>墨香交织醇厚咖香，静谧环境温柔治愈。阅读之余小坐休憩，一杯醇香茶饮、一份闲适时光，让书香与烟火相融，慢享生活温柔诗意。</p>
+        </div>
+        <div class="about-img">
+            <img src="pic25.jpg" alt="云卷咖啡">
+        </div>
+    </div>
+
+    <!-- 创艺园地 -->
+    <h2 class="section-title">创艺园地</h2>
+    <div class="creative-section">
+        <div class="creative-left">
+            <img src="pic31.jpg" alt="仓库">
+            <div class="caption">云笺书局南侧1号仓库</div>
+        </div>
+        <div class="creative-right">
+            <p>旧隅新生，墨香入画。</p>
+            <p>云笺书局将这座老旧<span style="font-weight:bold;">村屋</span>仓库，</p>
+            <p>以粉刷与彩绘为笔，</p>
+            <p>点染成一方小巧而别致的书店造景。</p>
+            <p>让每一次路过，都成为一场与书香和艺术的美丽邂逅。</p>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="footer-nav">
+        <span>文化建设</span><span>产品定制</span><span>礼品卡订购</span>
+        <span>IP策展</span><span>广告推广</span><span>商业合作</span><span>联系我们</span>
+    </div>
+    <div class="footer-disclaimer">内容均为虚构，仅供游戏体验</div>
+    <div class="footer-copyright">©爆炒霸王龙🦖制作</div>
+</div>
+
+<script>
+    // 存档适配
+    const currentSlot = sessionStorage.getItem('currentSlot');
+    const STORAGE_KEY = currentSlot ? `slot${currentSlot}_data` : null;
+    function saveGameState(key, value) {
+        if (!STORAGE_KEY) return;
+        let saved = localStorage.getItem(STORAGE_KEY);
+        let data = saved ? JSON.parse(saved) : {};
+        data[key] = value;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+    function goToPageA(){
+        // 标记已访问过pageE
+        saveGameState('visitedPageE', true);
+        window.location.href = 'pageA.html';
+    }
+
+    // 新书上架轮播
+    const items = document.querySelectorAll('.book-item');
+    const coverImg = document.getElementById('bookCover');
+    let currentIndex = 0;
+    const total = items.length;
+
+    function highlight(index) {
+        items.forEach(item => item.classList.remove('active'));
+        items[index].classList.add('active');
+        coverImg.src = items[index].dataset.img;
+    }
+
+    function nextBook() {
+        currentIndex = (currentIndex + 1) % total;
+        highlight(currentIndex);
+    }
+
+    highlight(0);
+    setInterval(nextBook, 2500);
+
+    items.forEach((item, idx) => {
+        item.addEventListener('click', () => {
+            currentIndex = idx;
+            highlight(currentIndex);
+        });
+    });
+</script>
+</body>
+</html>

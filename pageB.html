@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>怀璞楼 - 1926</title>
+    <style>
+        :root {
+            --bg: #f2f0e8; --text: #3a3528; --accent: #8a9e7d; --border: #d4ceba;
+            --card-bg: #fdfcf7; --red-dot: #c94b3a;
+            --font-heading: "STKaiti","楷体",serif; --font-body: "STKaiti","楷体",serif;
+            --font-hand1: "STKaiti","楷体",cursive; --font-hand2: "STXingkai","华文行楷",cursive;
+            --font-hand3: "STKaiti","楷体",cursive; --font-hand4: "STKaiti","楷体",cursive;
+            --font-scribble: "STXingkai","华文行楷",cursive;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            background-color:#e8e4d8; font-family:var(--font-body); color:var(--text);
+            min-height:100vh; display:flex; flex-direction:column; align-items:center;
+            line-height:1.6;
+        }
+        body::before{
+            content:''; position:fixed; top:-200px; left:50%; transform:translateX(-50%);
+            width:900px; height:700px; background:radial-gradient(ellipse, rgba(255,250,235,0.55) 0%, rgba(255,245,220,0.25) 35%, transparent 70%);
+            pointer-events:none; z-index:0;
+        }
+        .main-container{
+            width:100%; max-width:1100px; background:rgba(253,252,247,0.7);
+            backdrop-filter:blur(2px); min-height:100vh; display:flex; flex-direction:column;
+            position:relative; z-index:1; box-shadow:0 0 40px rgba(100,80,40,0.06);
+        }
+        .year-badge{
+            position:absolute; top:12px; left:20px; z-index:10;
+            font-family:var(--font-heading); font-size:1.3rem; letter-spacing:4px;
+            color:#5c5544; background:rgba(253,252,247,0.8); padding:4px 12px;
+            border-radius:4px; border:1px solid #d4ceba; display:flex; align-items:center; gap:8px;
+        }
+        .year-dropdown select{display:none; background:transparent; border:1px solid #d4ceba;
+            font-family:var(--font-body); padding:2px 6px; border-radius:4px; color:#5c5544;}
+        .year-dropdown.available select{display:inline-block}
+        .header-banner{width:100%; background:linear-gradient(180deg,#fdfcf8,#f8f5eb);
+            border-bottom:2px solid var(--border); padding:18px 0 12px; text-align:center}
+        .header-banner img{max-width:92%; height:auto; max-height:110px}
+        .footer{background:#1a1a1a; color:#ccc; padding:28px 24px 18px; text-align:center;
+            font-size:0.85rem; line-height:1.9; margin-top:auto}
+        .footer-links{display:flex; flex-wrap:wrap; justify-content:center; gap:8px 18px; margin-bottom:12px}
+        .footer-links span{cursor:pointer; transition:color 0.2s}
+        .footer-links span:hover{color:#fff}
+        .content{flex:1; padding:24px 32px 40px; display:flex; flex-direction:column; align-items:center}
+        .page-title{font-family:var(--font-heading); font-size:3rem; letter-spacing:6px; color:#4a5540; margin:8px 0 16px}
+        .search-bar{display:flex; margin-bottom:28px; width:100%; max-width:500px}
+        .search-bar input{flex:1; padding:10px 16px; border:2px solid var(--border); border-right:none; border-radius:6px 0 0 6px; background:#fefdfa}
+        .search-bar button{padding:10px 20px; background:var(--accent); color:#fff; border:2px solid var(--accent); border-radius:0 6px 6px 0; cursor:pointer}
+        .card-row{display:flex; gap:28px; flex-wrap:wrap; justify-content:center; max-width:960px}
+        .card{flex:1; min-width:220px; max-width:300px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; overflow:hidden; text-align:center}
+        .card img{width:100%; height:180px; object-fit:cover}
+        .card-label{padding:10px 0 4px; font-weight:bold; letter-spacing:2px}
+        .card-btn{display:inline-block; margin:6px 0 16px; padding:8px 22px; border:1.5px solid var(--accent); color:var(--accent); border-radius:4px; cursor:pointer}
+        .subpage-nav{display:flex; gap:0; margin:16px 0 24px; border-bottom:2px solid var(--border); width:100%; max-width:700px; justify-content:center}
+        .nav-item{padding:12px 28px; cursor:pointer; font-family:var(--font-heading); font-size:1.1rem; letter-spacing:3px; color:#6b6050; border-bottom:3px solid transparent; margin-bottom:-2px; background:none; border:none; transition:all 0.2s}
+        .nav-item:hover{color:#3a3528; border-bottom-color:#c0b898}
+        .nav-item.active{color:#3a3528; border-bottom-color:var(--accent); font-weight:bold}
+        .nav-item.locked{color:#b0a898; cursor:not-allowed}
+        .nav-item.locked:hover{border-bottom-color:transparent; color:#b0a898}
+        .classroom-container,.study-container,.secret-container{position:relative; width:100%; max-width:1000px; margin:0 auto}
+        .img-hotspot-area{position:relative; width:100%}
+        .img-hotspot-area img{width:100%; border-radius:6px; box-shadow:0 2px 12px rgba(0,0,0,0.08); display:block}
+        .hotspot-dot{position:absolute; width:22px; height:22px; background:rgba(200,160,100,0.85); border:3px solid rgba(140,100,50,0.9); border-radius:50%; cursor:pointer; z-index:3; transition:transform 0.15s}
+        .hotspot-dot:hover{transform:scale(1.5)}
+        .hotspot-btn{position:absolute; z-index:4; padding:8px 14px; background:#fefdfa; border:2px solid #8a7a5a; border-radius:8px; cursor:pointer; font-family:var(--font-body); font-size:0.85rem; letter-spacing:2px; color:#3a2810; white-space:nowrap; transition:all 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.15); font-weight:bold}
+        .hotspot-btn:hover{background:#f5efe0; border-color:#5a4a30}
+        .red-dot{display:inline-block; width:9px; height:9px; background:var(--red-dot); border-radius:50%; margin-left:4px; vertical-align:middle; animation:blink 0.8s infinite}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+        .modal-overlay{position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(20,16,10,0.65); z-index:100; display:flex; align-items:center; justify-content:center}
+        .modal-overlay.hidden{display:none}
+        .modal-dialog{background:#fdfaf2; border:3px solid #c4b898; border-radius:10px; max-width:650px; width:90%; max-height:80vh; overflow-y:auto; position:relative; animation:slideUp 0.25s}
+        @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+        .modal-dialog.wide{max-width:750px}
+        .modal-close{position:absolute; top:8px; left:10px; width:32px; height:32px; background:#d4c8b0; border:1px solid #b0a080; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:5; font-size:1.1rem; color:#5c4c30; transition:background 0.15s}
+        .modal-close:hover{background:#c4b090}
+        .modal-body{padding:40px 28px 24px}
+        .reader{background:#faf7ef; border:1px solid #d4cbaa; border-radius:4px; padding:24px 20px; min-height:280px; max-height:55vh; overflow-y:auto; line-height:2; letter-spacing:0.5px; color:#2c2416; position:relative}
+        .reader .page-turn{display:flex; justify-content:space-between; margin-top:16px; gap:12px}
+        .reader .page-turn button{padding:6px 16px; background:#e8e0ce; border:1px solid #c4b898; border-radius:4px; cursor:pointer; font-family:var(--font-body); transition:background 0.2s}
+        .reader .page-turn button:hover{background:#d8cfb8}
+        .handwriting-scribble{font-family:var(--font-scribble); font-size:0.85rem; color:#6b5a40; display:inline-block; margin-left:6px; opacity:0.8; transform:rotate(-3deg); letter-spacing:1px}
+        .password-input-group{display:flex; gap:8px; align-items:center; margin-top:12px; justify-content:center}
+        .password-input-group input{width:120px; padding:8px 12px; border:2px solid #c4b898; border-radius:4px; font-size:1.1rem; text-align:center; letter-spacing:4px; background:#fefdfa}
+        .password-input-group button{padding:8px 16px; background:#8a9e7d; color:#fff; border:none; border-radius:4px; cursor:pointer; font-family:var(--font-body); letter-spacing:1px}
+        .backpack-btn{position:fixed; bottom:24px; left:24px; z-index:150; width:52px; height:52px; background:#c4a87c; border:3px solid #8b6f4e; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#3a2810; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.2)}
+        .backpack-btn .badge{position:absolute; top:-4px; right:-4px; width:16px; height:16px; background:var(--red-dot); border-radius:50%; display:none; animation:blink 0.8s infinite}
+        .backpack-btn .badge.show{display:block}
+        .backpack-panel{position:fixed; bottom:84px; left:20px; background:#fdfaf2; border:2px solid #c4b898; border-radius:8px; padding:16px; min-width:180px; display:none; z-index:149; box-shadow:0 6px 20px rgba(0,0,0,0.2)}
+        .backpack-panel.open{display:block}
+        .backpack-panel h4{margin:0 0 10px; font-family:var(--font-heading); letter-spacing:2px; color:#5c4c30; font-size:0.95rem; border-bottom:1px solid #d4ceba; padding-bottom:6px}
+        .backpack-item{padding:6px 10px; cursor:pointer; border-radius:4px; transition:background 0.15s; font-size:0.9rem; letter-spacing:1px; color:#4a3a20; position:relative}
+        .backpack-item:hover{background:#f5efe0}
+        .backpack-item .item-badge{width:10px; height:10px; background:var(--red-dot); border-radius:50%; display:none; margin-left:6px; animation:blink 0.8s infinite}
+        .backpack-item .item-badge.show{display:inline-block}
+        .toast{position:fixed; top:30px; left:50%; transform:translateX(-50%); background:#3a3528; color:#fdfaf2; padding:10px 22px; border-radius:20px; z-index:200; animation:fadeIn 0.2s}
+        .hidden{display:none !important}
+        .paste-zone{width:100%; min-height:60px; border:2px dashed #c4b898; border-radius:6px; margin-top:12px; display:flex; align-items:center; justify-content:center; color:#a09070; font-size:0.85rem; cursor:pointer; transition:all 0.2s; padding:10px}
+        .paste-zone:hover{border-color:#8a7a5a}
+        .paste-zone img{max-width:100%; max-height:200px; border-radius:4px}
+        .grid-table{border-collapse:collapse; margin:10px auto}
+        .grid-table td{width:36px; height:36px; text-align:center; border:1px solid #c4b898; font-size:16px; cursor:pointer; user-select:none; transition:background 0.1s}
+        .grid-table td.selected{background:#c4a87c; color:#fff}
+        .grid-table td.used{background:#e0d4b8; color:#999; pointer-events:none}
+        .grid-table td.highlight{background:#f7f0c0; color:#3a3528; cursor:pointer; font-weight:bold}
+        .grid-table td.locked{background:#e8dcc8; color:#999; pointer-events:none}
+        .slot8{display:inline-flex; width:38px; height:38px; border:2px dashed #c4b898; margin:0 3px; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s}
+        .slot8.filled{border-style:solid; background:#f5efe0}
+        .color-btn{padding:8px 14px; margin:4px; border:2px solid #888; border-radius:20px; cursor:pointer; font-weight:bold; color:#fff; transition:all 0.2s}
+        .color-btn.red{background:#e74c3c}
+        .color-btn.orange{background:#e67e22}
+        .color-btn.yellow{background:#f1c40f; color:#333}
+        .color-btn.green{background:#2ecc71}
+        .color-btn.blue{background:#3498db}
+        .color-btn.indigo{background:#4b0082}
+        .color-btn.purple{background:#9b59b6}
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <div class="year-badge">
+        1926年
+        <div class="year-dropdown" id="yearDropdown">
+            <select onchange="switchYear(this.value)">
+                <option value="1926" selected>1926</option>
+                <option value="2026">2026</option>
+            </select>
+        </div>
+    </div>
+    <div class="header-banner"><img src="pic1.jpg" alt="怀璞楼标志"></div>
+
+    <!-- 首页 -->
+    <div class="content" id="homePage">
+        <h1 class="page-title">怀 璞 楼</h1>
+        <div class="search-bar"><input placeholder="搜索..."><button>搜索</button></div>
+        <div class="card-row">
+            <div class="card"><img src="pic2.png"><div class="card-label">历史简介</div><button class="card-btn no-response">点击探索 →</button></div>
+            <div class="card"><img src="pic3.png"><div class="card-label">摄影展示</div><button class="card-btn" onclick="goToPhotoPage()">点击探索 →</button></div>
+            <div class="card"><img src="pic4.png"><div class="card-label">门票预约</div><button class="card-btn no-response">点击探索 →</button></div>
+        </div>
+    </div>
+
+    <!-- 摄影展示页 -->
+    <div class="content hidden" id="photoPage">
+        <div class="subpage-nav">
+            <button class="nav-item active" onclick="goToClassroom()">教 室</button>
+            <button class="nav-item locked" id="navStudy" onclick="enterStudy()">书 房</button>
+            <button class="nav-item locked" id="navSecret" onclick="enterSecret()">？ ？</button>
+        </div>
+        <div class="classroom-container" id="classroomView"><div class="img-hotspot-area" id="classroomArea"><img id="classroomImg" src="pic5.png" alt="教室"></div></div>
+        <div class="study-container hidden" id="studyView"><div class="img-hotspot-area" id="studyArea"><img id="studyImg" src="pic10.jpg" alt="书房"></div></div>
+        <div class="secret-container hidden" id="secretView"><div class="img-hotspot-area" id="secretArea"><img id="secretImg" src="pic17.jpg" alt="密室"></div></div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-links"><span>网站地图</span><span>相关链接</span><span>影像授权</span><span>隐私政策</span><span>版权声明</span><span>留言板</span><span>联系我们</span></div>
+        <div class="follow-title">关注我们</div>
+        <div class="social-icons"><span>微信</span><span>微博</span><span>小红书</span><span>抖音</span></div>
+        <div class="copyright">©爆炒霸王龙🦖制作</div>
+        <div class="disclaimer">所有内容均为虚构，仅供解谜体验</div>
+    </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalOverlay"><div class="modal-dialog" id="modalDialog"><button class="modal-close" onclick="closeModal()">✕</button><div class="modal-body" id="modalBody"></div></div></div>
+<button class="backpack-btn" id="backpackBtn" onclick="toggleBackpack()" style="display:none;">🎒<span class="badge" id="backpackBadge"></span></button>
+<div class="backpack-panel" id="backpackPanel"><h4>📦 背包</h4><div id="backpackItems"></div></div>
+<div class="toast hidden" id="toast"></div>
+
+<script>
+// ========== 存档 ==========
+const currentSlot = sessionStorage.getItem('currentSlot');
+if (!currentSlot) window.location.href = 'save.html';
+const STORAGE_KEY = `slot${currentSlot}_data`;
+
+const GameState = {
+    announcementSeen: false, clickedHotspots: {}, backpack: [],
+    diaryUnlocked: false, diaryConversationDone: false, studyKeyAvailable: false,
+    pic7Pasted: false, passwordSolved: false, readerPages: {},
+    conversationStage: 0, bookSequence: [], secretUnlocked: false,
+    drawerPuzzleSolved: false, telegraphSolved: false, timeConverterCollected: false,
+    drawerRedDot: false, drawerRedDotSeen: false, diaryRedDotSeen: false,
+    diaryStage: 1, diaryDialogues: {}, visitorName: '玩家', drawerNoteSolved: false,
+    remainingChars: [], slotValues: ['', '', '', '', '', '', '', ''], pageCCompleted: false,
+    diaryNotificationShown: false
+};
+function loadGame() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) try { Object.assign(GameState, JSON.parse(saved)); } catch(e) {}
+}
+function saveGame() { localStorage.setItem(STORAGE_KEY, JSON.stringify(GameState)); }
+loadGame();
+
+// ========== 日记原文 ==========
+const diaryPages = [
+    { date: '二月廿一', weather: '晴', text: '今日学堂的玉兰开了，白白软软的。下课我和小戈一起捡花瓣，攒了一小捧，夹在课本里，试试能不能做成干花。' },
+    { date: '二月三十', weather: '微雨', text: '今天下着细细的小雨，不能出去玩。我在课上好好练毛笔字，写了满满一页小楷。先生路过看了看，说我比之前工整多啦。雨天安安静静，最适合看书发呆、瞎想故事。' },
+    { date: '三月十四', weather: '多云', text: '今日国文课格外有意思。先生和我们闲谈往事，说他从前留法读书时，在异国的老店里见到一只好看的北宋定窑白瓷长瓶，瓶身刻着细细的莲纹，温润又干净。先生说那瓷瓶本该是一对，他费了好大心力、辗转许久才将这一只带回国内，心里一直惦念，不知另一只是否还流落在海外。我听得入迷，脑子里一直在想那只瓷瓶漂泊远方的样子。' },
+    { date: '三月廿四', weather: '晴', text: '今日天气暖洋洋的。我和小戈练习跳绳，我一口气跳了许多下。辑安在旁边玩他的篮球，真羡慕，那是先生送他的礼物。铭疆在画画，出来玩真开心。' },
+    { date: '四月初五', weather: '有风', text: '今天风很大，吹得学堂的旗子哗哗响。午休的时候，小戈在后面摆弄先生送她的鲁班锁，我盯着树叶发呆，幻想它们是乘风远行的小船。' },
+    { date: '四月十一', weather: '晴', text: '今日先生格外温柔，课后单独送了我一本书，是《海底两万里》。先生说我平日爱读书、爱乱想，这本书最合我的性子。我捧着新书爱不释手，夜里躺在床上，不停幻想深海里的奇妙世界。' },
+    { date: '四月廿七', weather: '黄昏有霞', text: '傍晚的时候我们四个商量好一起去探险，小戈带我们走到了一个藏在田地里的村屋。小戈说那是她们家以前的仓库，位置太偏僻所有现在闲置了。小戈还从家里找来了钥匙，我们打算把这里当成我们的秘密基地。' },
+    { date: '五月初六', weather: '薄阴', text: '天色闷闷的，没有太阳。回家之后我又读了一遍先生送的书，总能想出许多新奇的画面，这样温柔的黄昏最适合胡思乱想啦。' },
+    { date: '五月十二', weather: '晴', text: '今日学堂上新了图画课业。我学着画莲花的样子，想起先生说过的瓷瓶莲纹，便照着心里的样子慢慢描摹。我一边画一边想象，那只白瓷瓶静静躺在远方的异国小店，等着和同伴重逢。' },
+    { date: '五月十五', weather: '晴', text: '最近觉得先生有些反常，往日课后先生总会留一会儿，和我们说说话。可这几日一到放学，先生就匆匆离开。我猜不出先生在忙什么要紧事，心里暗暗好奇。' }
+];
+
+function openDiaryReader() {
+    let currentPage = 0;
+    function renderPage() {
+        const page = diaryPages[currentPage];
+        const html = `
+            <div class="reader" style="text-align:center;">
+                <h4 style="font-family:var(--font-hand); letter-spacing:2px;">${page.date} ${page.weather}</h4>
+                <p style="text-indent:2em; line-height:2; margin-top:10px;">${page.text}</p>
+            </div>
+            <div class="page-turn" style="justify-content:space-between; margin-top:16px;">
+                <button onclick="window.diaryTurn(-1)" ${currentPage===0?'disabled':''}>◀ 上一页</button>
+                <span style="font-size:0.85rem;color:#8a7a5a;">${currentPage+1} / ${diaryPages.length}</span>
+                <button onclick="window.diaryTurn(1)" ${currentPage===diaryPages.length-1?'disabled':''}>下一页 ▶</button>
+            </div>
+        `;
+        document.getElementById('modalBody').innerHTML = html;
+        document.getElementById('modalDialog').classList.add('wide');
+        document.getElementById('modalOverlay').classList.remove('hidden');
+    }
+    window.diaryTurn = function(delta) {
+        currentPage = Math.min(Math.max(0, currentPage + delta), diaryPages.length - 1);
+        renderPage();
+    };
+    renderPage();
+}
+
+// ========== 基础UI ==========
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.remove('hidden');
+    setTimeout(() => t.classList.add('hidden'), 2000);
+}
+function openModal(html, wide=false) {
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('modalDialog').classList.toggle('wide', wide);
+    document.getElementById('modalOverlay').classList.remove('hidden');
+}
+function closeModal() {
+    document.getElementById('modalOverlay').classList.add('hidden');
+    checkTriggers(); updateBackpackUI(); saveGame();
+}
+function toggleBackpack() {
+    document.getElementById('backpackPanel').classList.toggle('open');
+    updateBackpackUI();
+}
+function updateBackpackUI() {
+    const container = document.getElementById('backpackItems');
+    const badge = document.getElementById('backpackBadge');
+    let html = '';
+    if (GameState.backpack.length === 0) {
+        html = '<div style="color:#a09070;">空空如也</div>';
+    } else {
+        GameState.backpack.forEach(item => {
+            let label = item, dot = '';
+            if (item === 'diary') { label = '📔 日记本'; if (GameState.conversationStage > 0 && !GameState.diaryDialogues[GameState.conversationStage]) dot = 'show'; }
+            else if (item === 'map') label = '🗺 地图';
+            else if (item === 'studyKey') label = '🔑 钥匙';
+            else if (item === 'pic7') label = '📝 纸条';
+            else if (item === 'timeConverter') label = '⏳ 时空转换器';
+            html += `<div class="backpack-item" onclick="useItem('${item}')">${label}<span class="item-badge ${dot}"></span></div>`;
+        });
+    }
+    container.innerHTML = html;
+    badge.classList.toggle('show', GameState.conversationStage > 0 && !GameState.diaryDialogues[GameState.conversationStage]);
+}
+function allCollected() {
+    return GameState.backpack.includes('map') && GameState.backpack.includes('studyKey') &&
+           GameState.diaryUnlocked && Object.keys(GameState.clickedHotspots).length >= 6;
+}
+function useItem(id) {
+    if (id === 'map') {
+        openModal(`<div style="text-align:center"><img src="pic8.jpg" style="max-width:100%"></div>`, true);
+    } else if (id === 'studyKey') {
+        showToast('空间观测者无法触碰到实体，请想别的办法。');
+    } else if (id === 'diary') {
+        sessionStorage.setItem('returnView', getCurrentView());
+        window.location.href = 'diary.html';
+    } else if (id === 'timeConverter') {
+        enableYearSwitch();
+        showToast('时空转换器已激活');
+    }
+    document.getElementById('backpackPanel').classList.remove('open');
+}
+function enableYearSwitch() { document.getElementById('yearDropdown').classList.add('available'); }
+function switchYear(val) {
+    if (val === '2026') window.location.href = 'pageA.html';
+}
+
+function getCurrentView() {
+    if (!document.getElementById('photoPage').classList.contains('hidden')) {
+        if (!document.getElementById('classroomView').classList.contains('hidden')) return 'classroom';
+        if (!document.getElementById('studyView').classList.contains('hidden')) return 'study';
+        if (!document.getElementById('secretView').classList.contains('hidden')) return 'secret';
+    }
+    return 'classroom';
+}
+function updateNavActive(view) {
+    const navs = document.querySelectorAll('.nav-item');
+    navs[0].classList.toggle('active', view === 'classroom');
+    navs[1].classList.toggle('active', view === 'study');
+    navs[2].classList.toggle('active', view === 'secret');
+}
+
+// ========== 页面导航 ==========
+function goToPhotoPage() {
+    document.getElementById('homePage').classList.add('hidden');
+    document.getElementById('photoPage').classList.remove('hidden');
+    document.getElementById('backpackBtn').style.display = 'flex';
+    goToClassroom();
+}
+function goToClassroom() {
+    document.getElementById('classroomView').classList.remove('hidden');
+    document.getElementById('studyView').classList.add('hidden');
+    document.getElementById('secretView').classList.add('hidden');
+    updateNavActive('classroom');
+    renderClassroom();
+}
+function enterStudy() {
+    if (!GameState.backpack.includes('studyKey')) { showToast('需要钥匙'); return; }
+    document.getElementById('classroomView').classList.add('hidden');
+    document.getElementById('studyView').classList.remove('hidden');
+    document.getElementById('secretView').classList.add('hidden');
+    updateNavActive('study');
+    renderStudy();
+}
+function enterSecret() {
+    if (!GameState.secretUnlocked) { showToast('密室未解锁'); return; }
+    document.getElementById('classroomView').classList.add('hidden');
+    document.getElementById('studyView').classList.add('hidden');
+    document.getElementById('secretView').classList.remove('hidden');
+    updateNavActive('secret');
+    renderSecret();
+}
+
+// ========== 热点渲染（百分比定位） ==========
+function renderHotspots(areaId, imgId, hotspots) {
+    const area = document.getElementById(areaId);
+    const img = document.getElementById(imgId);
+    area.querySelectorAll('.hotspot-dot,.hotspot-btn,svg').forEach(el => el.remove());
+    if (!img || !img.complete || img.naturalWidth === 0) {
+        img.addEventListener('load', () => renderHotspots(areaId, imgId, hotspots), { once: true });
+        return;
+    }
+
+    hotspots.forEach(h => {
+        const cxPercent = (h.x * 100) + '%';
+        const cyPercent = (h.y * 100) + '%';
+
+        const dot = document.createElement('div');
+        dot.className = 'hotspot-dot';
+        dot.style.left = `calc(${cxPercent} - 11px)`;
+        dot.style.top = `calc(${cyPercent} - 11px)`;
+        dot.onclick = h.action;
+        area.appendChild(dot);
+
+        const btn = document.createElement('button');
+        btn.className = 'hotspot-btn';
+        let btnLeft = `calc(${cxPercent} + 30px)`;
+        let btnTop = `calc(${cyPercent} + 20px)`;
+        if (h.x > 0.5) {
+            btnLeft = `calc(${cxPercent} - 120px)`;
+            btnTop = `calc(${cyPercent} + 20px)`;
+        }
+        btn.style.left = btnLeft;
+        btn.style.top = btnTop;
+        btn.textContent = h.label;
+        if (h.id === 'drawer' && GameState.drawerRedDot && !GameState.drawerRedDotSeen) {
+            btn.innerHTML += ' <span class="red-dot"></span>';
+        }
+        btn.onclick = h.action;
+        area.appendChild(btn);
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+        svg.style.position = 'absolute'; svg.style.top = '0'; svg.style.left = '0';
+        svg.style.width = '100%'; svg.style.height = '100%';
+        svg.style.pointerEvents = 'none'; svg.style.zIndex = '2';
+        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        const startX = `calc(${cxPercent})`;
+        const startY = `calc(${cyPercent})`;
+        const endX = `calc(${cxPercent} + ${h.x > 0.5 ? '-80px' : '30px'})`;
+        const endY = `calc(${cyPercent} + 20px)`;
+        line.setAttribute('x1', startX);
+        line.setAttribute('y1', startY);
+        line.setAttribute('x2', endX);
+        line.setAttribute('y2', endY);
+        line.setAttribute('stroke', '#8a7a5a');
+        line.setAttribute('stroke-width', '2');
+        svg.appendChild(line);
+        area.appendChild(svg);
+    });
+}
+
+// ========== 教室热点 ==========
+const classroomHotspots = [
+    {id:'desk_lu', label:'陆清泱课桌', x:0.29, y:0.90, action:()=>onHotspotClick('desk_lu')},
+    {id:'desk_yu', label:'余辑安课桌', x:0.65, y:0.90, action:()=>onHotspotClick('desk_yu')},
+    {id:'desk_shen', label:'沈姝戈课桌', x:0.32, y:0.68, action:()=>onHotspotClick('desk_shen')},
+    {id:'desk_xu', label:'许铭疆课桌', x:0.62, y:0.66, action:()=>onHotspotClick('desk_xu')},
+    {id:'podium', label:'讲桌', x:0.50, y:0.53, action:()=>onHotspotClick('podium')},
+    {id:'attendance', label:'出勤表', x:0.73, y:0.25, action:()=>onHotspotClick('attendance')},
+];
+function renderClassroom() { renderHotspots('classroomArea', 'classroomImg', classroomHotspots); }
+function onHotspotClick(id) {
+    GameState.clickedHotspots[id] = true; saveGame();
+    switch(id) {
+        case 'desk_lu': openDeskLu(); break;
+        case 'desk_yu': openDeskYu(); break;
+        case 'desk_shen': openDeskShen(); break;
+        case 'desk_xu': openDeskXu(); break;
+        case 'podium': openPodium(); break;
+        case 'attendance': openAttendance(); break;
+    }
+    checkTriggers();
+}
+
+// ---------- 陆清泱课桌 ----------
+function openDeskLu() { openModal(`<div style="text-align:center"><button onclick="openLockedBox()">🔒 带锁的盒子</button><button onclick="openBookSea()">📖 《海底两万里》</button></div>`); }
+function openLockedBox() { closeModal(); const solved = GameState.passwordSolved; let pasteHtml = GameState.pic7Pasted ? '<img src="pic7.jpg" style="max-width:100%">' : (GameState.backpack.includes('pic7') ? '<div class="paste-zone" onclick="pastePic7()">图片粘贴处</div>' : '<div class="paste-zone">图片粘贴处</div>'); openModal(`<div style="text-align:center"><img src="pic6.jpg" style="max-width:100%">${pasteHtml}${solved?'<p>✅ 密码正确，日记本已收入背包</p>':`<div style="margin-top:16px"><p>🔐 三位数密码</p><div class="password-input-group"><input id="pwdInput" maxlength="3"><button onclick="checkPassword()">确定</button></div></div>`}</div>`); }
+function checkPassword(){ if(document.getElementById('pwdInput').value==='365'){ GameState.passwordSolved=true; const wasUnlocked = GameState.diaryUnlocked; if(!wasUnlocked){ GameState.diaryUnlocked=true; if(!GameState.backpack.includes('diary')) GameState.backpack.push('diary'); showToast('日记本已收入背包'); saveGame(); closeModal(); updateBackpackUI(); openDiaryReader(); } else { saveGame(); closeModal(); updateBackpackUI(); } } else showToast('密码错误'); }
+function pastePic7(){ if(window.selectedItem==='pic7'){ GameState.pic7Pasted=true; saveGame(); closeModal(); openLockedBox(); window.selectedItem=null; } else showToast('请先在背包中点击纸条'); }
+function openBookSea(){ closeModal(); openModal(`<div class="reader"><div style="text-align:center;padding:40px 0;"><h3>海 底 两 万 里</h3><p>[法] 儒勒·凡尔纳</p><hr><p style="font-family:var(--font-hand1);font-size:1.1rem;letter-spacing:2px;line-height:2.2">深海揽星河，少年存山海，<br>心怀天地奇景，亦念故土长风。</p><p style="margin-top:24px;font-family:var(--font-hand1)">（落款：孟砚秋）</p></div></div>`); }
+
+// ---------- 余辑安课桌 ----------
+function openDeskYu(){ openModal(`<div style="text-align:center"><button onclick="openChineseBook()">📖 语文书</button><button onclick="openMapModal()">🗺 地图</button></div>`); }
+function openMapModal(){ if(!GameState.backpack.includes('map')){ GameState.backpack.push('map'); showToast('地图已收入背包'); } openModal(`<img src="pic8.jpg" style="max-width:100%">`, true); }
+function openChineseBook(){ closeModal(); const pages=[
+    `<div style="padding:10px;"><h4>黄花冈烈士事略序</h4><p style="text-indent:2em;line-height:2;">满清末造，革命党人，历艰难险巇，以坚毅不挠之精神，与民贼相搏，踬踣者屡，死事之惨，以辛亥三月二十九日围攻两广督署之役为最。吾党菁华，付之一炬，其损失可谓大矣！然是役也，碧血横飞，浩气四塞，草木为之含悲，风云因而变色，全国久蛰之人心，乃大兴奋。怨愤所积，如怒涛排壑，不可遏抑，不半载而武昌之大革命以成！</p><span class="handwriting-scribble">想出去玩</span></div>`,
+    `<div style="padding:10px;"><h4>少年中国说 · 梁启超</h4><p style="text-indent:2em;line-height:2;">故今日之责任，不在他人，而全在我少年。少年智则国智，少年富则国富，少年强则国强，少年独立则国独立，少年自由则国自由，少年进步则国进步，少年胜于欧洲则国胜于欧洲，少年雄于地球则国雄于地球。</p><p style="text-indent:2em;line-height:2;">红日初升，其道大光。河出伏流，一泻汪洋。潜龙腾渊，鳞爪飞扬。乳虎啸谷，百兽震惶。鹰隼试翼，风尘翕张。奇花初胎，矞矞皇皇。干将发硎，有作其芒。天戴其苍，地履其黄。纵有千古，横有八荒。前途似海，来日方长。</p><p style="text-indent:2em;line-height:2;">美哉我少年中国，与天不老！壮哉我中国少年，与国无疆！</p><span class="handwriting-scribble">今日天气，宜玩耍</span></div>`,
+    `<div style="padding:10px;"><h4>祖逖中流击楫</h4><p style="text-indent:2em;line-height:2;">逖居京口，纠合骁健，言于睿曰：“晋室之乱，非上无道而下怨叛也，由宗室争权，自相鱼肉，遂使戎狄乘隙，毒流中土。今遗民既遭残贼，人思自奋，大王诚能命将出师，使如逖者统之以复中原，郡国豪杰，必有望风响应者矣！”睿素无北伐之志，以逖为奋威将军、豫州刺史，给千人廪，布三千匹，不给铠仗，使自召募。逖将其部曲百余家渡江，中流，击楫而誓曰：“祖逖不能清中原而复济者，有如大江！”辞色壮烈，众皆慨叹。</p><span class="handwriting-scribble">想下课</span></div>`,
+    `<div style="padding:10px;"><h4>苏武牧羊（节选）</h4><p style="text-indent:2em;line-height:2;">武留匈奴凡十九岁，始以强壮出，及还，须发尽白。单于愈益欲降之，乃幽武置大窖中，绝不饮食。天雨雪，武卧啮雪，与旃毛并咽之，数日不死。匈奴以为神，乃徙武北海上无人处，使牧羝，羝乳乃得归。武既至海上，廪食不至，掘野鼠去草实而食之。杖汉节牧羊，卧起操持，节旄尽落。</p></div>`,
+    `<div style="padding:10px;"><h4>南园·其五 · 李贺</h4><p style="text-align:center;font-size:1.2rem;line-height:2.5;letter-spacing:2px;">男儿何不带吴钩，<br>收取关山五十州。<br>请君暂上凌烟阁，<br>若个书生万户侯？</p><span class="handwriting-scribble">今日天气，宜玩耍</span></div>`
+]; let cp=GameState.readerPages['chineseBook']||0; openModal(`<div class="reader"><div>${pages[cp]}</div><div class="page-turn"><button onclick="turnChineseBookPage(-1)" ${cp===0?'disabled':''}>上一页</button><span>${cp+1}/5</span><button onclick="turnChineseBookPage(1)" ${cp===4?'disabled':''}>下一页</button></div></div>`, true); GameState.readerPages['chineseBook']=cp; }
+function turnChineseBookPage(delta){ GameState.readerPages['chineseBook']=(GameState.readerPages['chineseBook']||0)+delta; saveGame(); closeModal(); setTimeout(openChineseBook,100); }
+
+// ---------- 沈姝戈课桌 ----------
+function openDeskShen(){ openModal(`<button onclick="openNotebook()">📓 笔记本</button>`); }
+function openNotebook(){ closeModal(); const pages=[
+    `<div style="padding:10px;font-family:var(--font-hand2);line-height:2.2;"><p>先生教我们苏州草码，我见过，父亲他们记账本会用那些符号，感觉很有意思，记一下</p><p style="margin-top:10px;">1→〡 2→〢 3→〣 4→〤 5→〥<br>6→〦 7→〧 8→〨 9→〩<br>10→十 20→卄 30→卅<br>11→十〡</p></div>`,
+    `<div style="padding:10px;font-family:var(--font-hand2);"><p>今天和先生聊天，突然发现他居然对密码这么有研究，今天他给我讲了摩斯电码，还讲了拍中文电报的时候，会用四位数字来代替汉字，叫做<b>中文电报明码</b>，他的书房里还有一个叫这个名字的厚册子呢，通过摩斯电码发送数字，再把数字还原成汉字就变成电报的明文啦！</p><p>摩斯电码0-9对照表</p><p>0：-----<br>1：·----<br>2：··---<br>3：···--<br>4：····-<br>5：·····<br>6：-····<br>7：--···<br>8：---··<br>9：----·</p></div>`,
+    `<div style="padding:10px;font-family:var(--font-hand2);"><p>今天又学到了一种新的密码——反切码，就是把甲乙两首诗作为密码本，三个数字代表一个汉字，第一个数字代表甲诗中的第几个字，第二个数字代表乙诗中的第几个字，甲中的字取声母，乙中的字取韵母，第三个数字代表声调，这个样子就可以拼出一个全新的汉字啦！</p><p>听先生说这是戚继光曾经为了不泄露军令创造的密码，中国的古人太有智慧啦！</p></div>`
+]; let cp=GameState.readerPages['notebook']||0; openModal(`<div class="reader"><div>${pages[cp]}</div><div class="page-turn"><button onclick="turnNotebookPage(-1)" ${cp===0?'disabled':''}>上一页</button><span>${cp+1}/3</span><button onclick="turnNotebookPage(1)" ${cp===2?'disabled':''}>下一页</button></div></div>`, true); GameState.readerPages['notebook']=cp; }
+function turnNotebookPage(delta){ GameState.readerPages['notebook']=(GameState.readerPages['notebook']||0)+delta; saveGame(); closeModal(); setTimeout(openNotebook,100); }
+
+// ---------- 许铭疆课桌 ----------
+function openDeskXu(){ openModal(`<div style="text-align:center"><button onclick="openArtBook()">🎨 画册</button><button onclick="openSecretNote()">📝 上课偷偷传的纸条</button></div>`); }
+function openArtBook(){ closeModal(); const hasPic7=GameState.backpack.includes('pic7'); const pages=[
+    `<div style="padding:10px;font-family:var(--font-hand4);text-align:center;"><p style="font-size:1.1rem;">璞玉藏心，笔墨载志。愿你以画为灯，绘山河风月，记人间正道，勤学不辍，心怀家国。</p><p>（落款：孟砚秋）</p>${!hasPic7?'<p style="color:#c94b3a;cursor:pointer" onclick="collectPic7()">📎 点击这里收集夹在画册中的纸条</p>':'<p style="color:#8a9e7d;">✅ 纸条已收入背包</p>'}</div>`,
+    `<div style="padding:10px;font-family:var(--font-hand4);"><p>今天先生教了我们三原色：红黄蓝，还有他们混合会组成的颜色，我画在下面</p><div style="text-align:center;"><img src="pic9.png" style="max-width:80%"></div></div>`
+]; let cp=GameState.readerPages['artBook']||0; openModal(`<div class="reader" style="background:#fff;"><div>${pages[cp]}</div><div class="page-turn"><button onclick="turnArtBookPage(-1)" ${cp===0?'disabled':''}>上一页</button><span>${cp+1}/2</span><button onclick="turnArtBookPage(1)" ${cp===1?'disabled':''}>下一页</button></div></div>`, true); GameState.readerPages['artBook']=cp; }
+function turnArtBookPage(delta){ GameState.readerPages['artBook']=(GameState.readerPages['artBook']||0)+delta; saveGame(); closeModal(); setTimeout(openArtBook,100); }
+function collectPic7(){ if(!GameState.backpack.includes('pic7')){ GameState.backpack.push('pic7'); showToast('纸条已收集'); saveGame(); } closeModal(); openArtBook(); }
+function openSecretNote(){ closeModal(); openModal(`<div class="reader"><div style="padding:10px;line-height:2.2;"><p style="font-family:var(--font-hand1);">陆：感觉先生最近有点反常啊</p><p style="font-family:var(--font-hand2);">沈：没错，他最近一放学就立刻离开，很奇怪</p><p style="font-family:var(--font-hand1);">陆：而且一直心事重重的</p><p style="font-family:var(--font-hand4);">许：我前两天回家路上，在一家古董店看到他了，会不会和这个有关系</p><p style="font-family:var(--font-hand3);">余：是不是东边那家，先生之前提过他有个姓刘的朋友在那里</p><p style="font-family:var(--font-hand4);">许：对对，是那家</p><p style="font-family:var(--font-hand1);">陆：先生最近中午一直把自己反锁在书房，要不咱们去书房看看</p><p style="font-family:var(--font-hand2);">沈：会不会不太好</p><p style="font-family:var(--font-hand3);">余：没事，咱们就看看，不动先生东西</p><p style="font-family:var(--font-hand4);">许：可以是可以，但是先生书房的门一直锁着，咱们怎么进去啊。</p></div></div>`, true); }
+
+// ---------- 讲桌 ----------
+function openPodium(){ openModal(`<div style="text-align:center"><button onclick="collectKey()">🔑 钥匙</button><button onclick="openCalendar()">📅 日历</button></div>`); }
+function collectKey(){ if(!GameState.backpack.includes('studyKey')){ GameState.backpack.push('studyKey'); showToast('钥匙已收入背包'); saveGame(); closeModal(); updateBackpackUI(); } else showToast('已有钥匙'); }
+function dayToChinese(d){ const arr=['','一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九']; return arr[d]||d; }
+function openCalendar(){ closeModal(); if(!GameState.readerPages['calendar']) GameState.readerPages['calendar']=17; let day=GameState.readerPages['calendar']; if(day<1) day=1; if(day>29) day=29; openModal(`<div class="reader" style="text-align:center"><h4>丙寅年 五月</h4><div style="padding:20px;font-size:1.3rem;font-family:var(--font-hand2)"><p>五月${dayToChinese(day)}</p>${day===17?'<p style="color:#c94b3a">与刘兄会面</p>':''}</div><div class="page-turn" style="justify-content:center"><button onclick="turnCalendarPage(-1)" ${day<=1?'disabled':''}>◀</button><span>${day}/29</span><button onclick="turnCalendarPage(1)" ${day>=29?'disabled':''}>▶</button></div></div>`); GameState.readerPages['calendar']=day; saveGame(); }
+function turnCalendarPage(delta){ let d=(GameState.readerPages['calendar']||17)+delta; if(d<1) d=1; if(d>29) d=29; GameState.readerPages['calendar']=d; saveGame(); closeModal(); setTimeout(openCalendar,100); }
+
+// ---------- 出勤表 ----------
+function openAttendance(){ openModal(`<table style="width:100%;text-align:center"><tr><th>姓名</th><th>出勤</th></tr><tr><td>陆清泱</td><td>✔</td></tr><tr><td>沈姝戈</td><td>✔</td></tr><tr><td>余辑安</td><td>✔</td></tr><tr><td>许铭疆</td><td>✔</td></tr></table>`); }
+
+// ========== 书房 ==========
+const studyHotspots = () => {
+    const spots = [{id:'desk', label:'书桌', x:0.56, y:0.69, action:openStudyDesk}];
+    if (GameState.diaryDialogues['2']) spots.push({id:'shelf', label:'书架', x:0.12, y:0.55, action:openBookshelf});
+    return spots;
+};
+function renderStudy() { renderHotspots('studyArea', 'studyImg', studyHotspots()); }
+function openStudyDesk() { openModal(`<button onclick="openLetterGrid()">📜 奇怪的信</button>`); }
+
+// ========== 成语消除 ==========
+function openLetterGrid() {
+    closeModal();
+    const gridChars = '三敌五光十色按爱屋及心月黑风人鸡图弄巧乌二意将高狗飞索叶成至速井黄粱跳老骥公拙火之底老美梦马制好龙中蛙赝生常画识途两毛取买盲南谈蛇添足败遂栗椟人辕北辙品伤俱自荐还摸水滴石穿门可罗雀珠象自相矛盾熟能生巧'.split('');
+    const idioms = ['三心二意','井底之蛙','买椟还珠','五光十色','爱屋及乌','月黑风高','按图索骥','黄粱美梦','弄巧成拙','鸡飞狗跳','叶公好龙','火中取栗','毛遂自荐','门可罗雀','熟能生巧','自相矛盾','盲人摸象','南辕北辙','水滴石穿','两败俱伤','老生常谈','老马识途','画蛇添足'];
+    let selected = [], gridState = [];
+    for (let i=0;i<10;i++) gridState[i]=gridChars.slice(i*10,i*10+10);
+    let fillMode = false;
+    let slotSources = new Array(8).fill(null);
+
+    function allIdiomsCleared() { return gridState.flat().filter(c=>c!=='').length === 8; }
+    function renderGrid() {
+        let html = '<table class="grid-table"><tbody>';
+        for (let r=0;r<10;r++) {
+            html += '<tr>';
+            for (let c=0;c<10;c++) {
+                let cls = '';
+                if (selected.some(p=>p.r===r && p.c===c)) cls = 'selected';
+                else if (gridState[r][c] === '') cls = 'used';
+                else if (fillMode) {
+                    const occupied = slotSources.some(s => s && s.r===r && s.c===c);
+                    cls = occupied ? 'locked' : 'highlight';
+                }
+                html += `<td class="${cls}" onclick="window.gridClick(${r},${c})">${gridState[r][c]}</td>`;
+            }
+            html += '</tr>';
+        }
+        html += '</tbody></table><p style="font-weight:bold;font-size:1.1rem;margin-top:10px;">邻字成词，剔除成语。余字依序，串作短句。</p>';
+        html += '<div id="slotContainer" style="margin:15px 0"></div><button onclick="window.checkSlots()">确认</button>';
+        openModal(html, true);
+        renderSlots();
+    }
+
+    window.gridClick = function(r,c) {
+        if (fillMode) {
+            const ch = gridState[r][c];
+            if (ch === '') return;
+            if (slotSources.some(s => s && s.r===r && s.c===c)) return;
+            const emptyIdx = GameState.slotValues.findIndex(v=>!v);
+            if (emptyIdx >= 0) {
+                GameState.slotValues[emptyIdx] = ch;
+                slotSources[emptyIdx] = {r, c};
+                closeModal(); renderGrid();
+            }
+            return;
+        }
+        if (gridState[r][c] === '') return;
+        const index = selected.findIndex(p=>p.r===r && p.c===c);
+        if (index >= 0) selected.splice(index,1);
+        else {
+            if (selected.length === 0 || (Math.abs(selected[selected.length-1].r-r)+Math.abs(selected[selected.length-1].c-c)===1)) {
+                selected.push({r,c});
+            }
+        }
+        if (selected.length >= 4) {
+            const chars = selected.map(p=>gridState[p.r][p.c]).join('');
+            if (idioms.includes(chars)) {
+                showToast('成语消除：'+chars);
+                selected.forEach(p=>{ gridState[p.r][p.c] = ''; });
+                selected = [];
+                if (allIdiomsCleared()) fillMode = true;
+            }
+        }
+        closeModal(); renderGrid();
+    };
+
+    function renderSlots() {
+        const container = document.getElementById('slotContainer');
+        if (!container) return;
+        let html = '';
+        for (let i=0;i<8;i++) html += `<span class="slot8 ${GameState.slotValues[i]?'filled':''}" onclick="window.clearSlot(${i})">${GameState.slotValues[i]||''}</span>`;
+        container.innerHTML = html;
+    }
+    window.clearSlot = function(i) {
+        if (GameState.slotValues[i]) {
+            slotSources[i] = null;
+            GameState.slotValues[i] = '';
+            closeModal(); renderGrid();
+        }
+    };
+    window.checkSlots = function() {
+        if (GameState.slotValues.join('') === '敌人将至速制赝品') {
+            GameState.drawerPuzzleSolved = true;
+            showToast('谜题解开');
+            closeModal();
+            if (GameState.conversationStage < 2) GameState.conversationStage = 2;
+            updateBackpackUI();
+        } else showToast('顺序不对');
+    };
+
+    renderGrid();
+}
+
+// ========== 书架 ==========
+function openBookshelf() {
+    let html = `<img src="pic18.jpg" style="width:100%; border-radius:8px;"><br>
+        <div style="text-align:center; margin-top:10px;">
+            <button class="color-btn red" onclick="clickColor('red')">红</button>
+            <button class="color-btn orange" onclick="clickColor('orange')">橙</button>
+            <button class="color-btn yellow" onclick="clickColor('yellow')">黄</button>
+            <button class="color-btn green" onclick="clickColor('green')">绿</button>
+            <button class="color-btn blue" onclick="clickColor('blue')">蓝</button>
+            <button class="color-btn indigo" onclick="clickColor('indigo')">靛</button>
+            <button class="color-btn purple" onclick="clickColor('purple')">紫</button>
+        </div>
+        <button onclick="GameState.bookSequence=[]; document.getElementById('colorSeq').textContent='';">重置</button>
+        <div id="colorSeq" style="margin-top:10px;"></div>`;
+    openModal(html, true); GameState.bookSequence = [];
+}
+function clickColor(color) {
+    GameState.bookSequence.push(color);
+    document.getElementById('colorSeq').textContent = GameState.bookSequence.join(' → ');
+    if (GameState.bookSequence.join(',') === 'purple,orange,green') {
+        GameState.secretUnlocked = true;
+        document.getElementById('navSecret').classList.remove('locked');
+        document.getElementById('navSecret').textContent = '密 室';
+        showToast('密室已解锁'); closeModal();
+    }
+}
+
+// ========== 密室 ==========
+const secretHotspots = () => {
+    const spots = [];
+    if (GameState.diaryDialogues['3']) spots.push({id:'telegraph', label:'电报机', x:0.50, y:0.38, action:openTelegraph});
+    spots.push({id:'drawer', label:'抽屉', x:0.48, y:0.69, action:openDrawer});
+    return spots;
+};
+function renderSecret() { renderHotspots('secretArea', 'secretImg', secretHotspots()); }
+function openDrawer() {
+    if (GameState.drawerRedDot) GameState.drawerRedDotSeen = true;
+    saveGame();
+    renderSecret();
+    let html = `<button onclick="openDrawerLetter()">📜 一封信</button><button onclick="openDrawerNote()">📝 纸条</button>`;
+    if (GameState.telegraphSolved && !GameState.timeConverterCollected) html += `<button onclick="collectTimeConverter()">⏳ 时空转换器</button>`;
+    openModal(html);
+}
+function openDrawerLetter() { openModal(`<div class="reader"><p>甲：晚夏念清风，庭前鸟自啼。<br>云开红日落，静候暮时低。</p><p style="margin-top:15px;">乙：榴月初，晚风柔，浅塘蝉鸣伴汀洲。<br>云垂天，远山深，星河漫上过西楼。<br>溪前田，柳边丘，轻烟漫卷晚汀流。</p></div>`); }
+function openDrawerNote() { openModal(`<div style="line-height:2;"><p>1.〡-〣-〣 2.十〡-〢-〤 3.〣-〧-〤 4.十〡-卄〧-〡 5.十〩-十〩-〡 6.十〩-卄〧-〢</p><div style="margin-top:10px;"><b>明文：</b><input id="drawerInput" placeholder="请输入明文"><button onclick="checkDrawer()">确认</button></div><span style="font-size:0.8rem;color:#888;">提示：明文是一个精确的日期及时间</span></div>`); }
+function checkDrawer() { if (document.getElementById('drawerInput').value.trim() === '五月廿一申时') { GameState.drawerNoteSolved = true; showToast('正确'); closeModal(); if (GameState.conversationStage < 3) GameState.conversationStage = 3; updateBackpackUI(); } else showToast('错误'); }
+function openTelegraph() { openModal(`<button onclick="openTelegraphBook()">中文明文编码</button><button onclick="openTelegraphTable()">电报密文记录表</button>`); }
+function openTelegraphBook() { closeModal(); const rawData = "邦5702 日6010 铺8362 三1010 号6040 午8040 后7266 晤6161 面1060 青5022 水1223 路6706 转4531 运3130 土4010 古4060 归2721 瓷1761 藏4425 地4411 后7266 携5602 定3080 窑3066 残1064 玉1010 片2222 防7022 守3034 日6010".split(/\s+/).filter(Boolean); const items = []; for (let i=0; i<rawData.length; i+=2) items.push({ word: rawData[i], code: rawData[i+1] || '' }); const pageSize = 5, totalPages = Math.ceil(items.length / pageSize); let cp = GameState.readerPages['telegraphBook'] || 0; const start = cp * pageSize; const pageItems = items.slice(start, start + pageSize); let pageHtml = pageItems.map(item => `<p>${item.word} ${item.code}</p>`).join(''); openModal(`<div class="reader"><div>${pageHtml}</div><div class="page-turn"><button onclick="turnTelegraphBookPage(-1)" ${cp===0?'disabled':''}>上一页</button><span>${cp+1}/${totalPages}</span><button onclick="turnTelegraphBookPage(1)" ${cp===totalPages-1?'disabled':''}>下一页</button></div></div>`, false); GameState.readerPages['telegraphBook'] = cp; saveGame(); }
+function turnTelegraphBookPage(delta) { GameState.readerPages['telegraphBook']=(GameState.readerPages['telegraphBook']||0)+delta; saveGame(); closeModal(); setTimeout(openTelegraphBook,100); }
+function openTelegraphTable() { openModal(`<table class="grid-table" style="margin:10px auto;"><tr><th>序号</th><th>①</th><th>②</th><th>③</th><th>④</th></tr><tr><td>1</td><td>·····</td><td>-----</td><td>··---</td><td>··---</td></tr><tr><td>2</td><td>·----</td><td>--···</td><td>-····</td><td>·----</td></tr><tr><td>3</td><td>···--</td><td>-----</td><td>···--</td><td>····-</td></tr><tr><td>4</td><td>····-</td><td>-----</td><td>·----</td><td>-----</td></tr><tr><td>5</td><td>····-</td><td>-----</td><td>-····</td><td>-----</td></tr><tr><td>6</td><td>·----</td><td>-----</td><td>·----</td><td>-----</td></tr><tr><td>7</td><td>··---</td><td>--···</td><td>··---</td><td>·----</td></tr><tr><td>8</td><td>·····</td><td>--···</td><td>-----</td><td>··---</td></tr></table><div style="text-align:center; margin-top:15px;"><b>电报明文</b> <input id="telegraphInput" placeholder="输入时不加标点符号"><button onclick="checkTelegraph()">确认</button></div>`); }
+function checkTelegraph() { if (document.getElementById('telegraphInput').value.trim() === '青瓷守土古玉归邦') { GameState.telegraphSolved = true; GameState.drawerRedDot = true; showToast('正确'); closeModal(); if (GameState.conversationStage < 4) GameState.conversationStage = 4; updateBackpackUI(); renderSecret(); } else showToast('错误'); }
+function collectTimeConverter() { if (!GameState.timeConverterCollected) { GameState.timeConverterCollected = true; GameState.backpack.push('timeConverter'); enableYearSwitch(); showToast('时空转换器已收集'); closeModal(); updateBackpackUI(); } }
+
+// ========== 对话触发 ==========
+function checkTriggers() {
+    let prevStage = GameState.conversationStage;
+    if (GameState.conversationStage === 0 && allCollected()) GameState.conversationStage = 1;
+    if (GameState.conversationStage !== prevStage) {
+        if (!GameState.diaryNotificationShown && GameState.conversationStage === 1) {
+            showToast('有新对话！日记本左上角会出现红点，请注意观察');
+            GameState.diaryNotificationShown = true;
+        }
+    }
+    updateBackpackUI(); saveGame();
+}
+
+window.selectedItem = null;
+const origUseItem = useItem;
+useItem = function(id) {
+    if (id === 'pic7') { window.selectedItem = 'pic7'; showToast('已选中纸条，请点击图片粘贴处'); document.getElementById('backpackPanel').classList.remove('open'); return; }
+    origUseItem(id);
+};
+
+// 初始化
+window.addEventListener('load', () => {
+    if (GameState.timeConverterCollected) enableYearSwitch();
+    const hash = window.location.hash.slice(1);
+    const returnView = sessionStorage.getItem('returnView');
+    if (returnView) {
+        restoreView(returnView);
+        sessionStorage.removeItem('returnView');
+    } else if (hash && ['classroom','study','secret'].includes(hash)) {
+        restoreView(hash);
+        history.replaceState(null, null, ' ');
+    } else {
+        updateBackpackUI();
+        if (!document.getElementById('photoPage').classList.contains('hidden')) restoreView('classroom');
+    }
+    document.getElementById('backpackBtn').style.display = (GameState.backpack.length > 0) ? 'flex' : 'none';
+});
+
+function restoreView(view) {
+    document.getElementById('homePage').classList.add('hidden');
+    document.getElementById('photoPage').classList.remove('hidden');
+    document.getElementById('backpackBtn').style.display = 'flex';
+    if (view === 'study') {
+        document.getElementById('classroomView').classList.add('hidden');
+        document.getElementById('studyView').classList.remove('hidden');
+        document.getElementById('secretView').classList.add('hidden');
+        renderStudy();
+    } else if (view === 'secret') {
+        document.getElementById('classroomView').classList.add('hidden');
+        document.getElementById('studyView').classList.add('hidden');
+        document.getElementById('secretView').classList.remove('hidden');
+        renderSecret();
+    } else {
+        document.getElementById('classroomView').classList.remove('hidden');
+        document.getElementById('studyView').classList.add('hidden');
+        document.getElementById('secretView').classList.add('hidden');
+        renderClassroom();
+    }
+    updateNavActive(view || 'classroom');
+}
+
+window.addEventListener('resize', () => {
+    if (!document.getElementById('photoPage').classList.contains('hidden')) {
+        const view = getCurrentView();
+        if (view === 'classroom') renderClassroom();
+        else if (view === 'study') renderStudy();
+        else if (view === 'secret') renderSecret();
+    }
+});
+</script>
+</body>
+</html>
