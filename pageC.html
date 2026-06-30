@@ -28,28 +28,21 @@
         .search-bar button{padding:10px 20px;background:var(--accent);color:#fff;border:2px solid var(--accent);border-radius:0 6px 6px 0;cursor:pointer}
         .content-section{padding:20px 32px}
         .back-btn{display:inline-block;padding:6px 14px;background:rgba(253,252,247,0.8);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:0.85rem;margin-bottom:16px}
-        .video-monitor{
-            display:flex; flex-direction:column; align-items:center; margin-top:20px;
-            position:relative; z-index:0;
-        }
-        .video-buttons{display:flex; gap:15px; margin-bottom:15px}
+        .video-monitor{display:flex;flex-direction:column;align-items:center;margin-top:20px;position:relative;z-index:0}
+        .video-buttons{display:flex;gap:15px;margin-bottom:15px}
         .video-buttons button{padding:8px 20px;border:2px solid var(--accent);background:transparent;color:var(--accent);border-radius:6px;cursor:pointer;font-weight:bold;transition:0.2s}
         .video-buttons button.active{background:var(--accent);color:#fff}
         .video-buttons button.success::after{content:' ✔';color:green}
-        video{
-            width:100%; max-width:700px; border-radius:8px;
-            box-shadow:var(--shadow); background:#000;
-            position:relative; z-index:0;
-        }
-        .diary-popup{position:fixed; bottom:80px; right:20px; background:#fdfaf2; border:2px solid #c4b898; border-radius:10px; padding:15px; z-index:160; display:none; box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+        video{width:100%;max-width:700px;border-radius:8px;box-shadow:var(--shadow);background:#000;position:relative;z-index:0}
+        .diary-popup{position:fixed;bottom:80px;right:20px;background:#fdfaf2;border:2px solid #c4b898;border-radius:10px;padding:15px;z-index:160;display:none;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
         .diary-popup.open{display:block}
-        .modal-overlay{position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(20,16,10,0.65); z-index:300; display:flex; align-items:center; justify-content:center}
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(20,16,10,0.65);z-index:300;display:flex;align-items:center;justify-content:center}
         .modal-overlay.hidden{display:none}
-        .modal-dialog{background:#fef9ed; border:3px solid #c9a87c; border-radius:10px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto; padding:30px; position:relative; z-index:301}
-        .backpack-btn{position:fixed; bottom:24px; left:24px; z-index:250; width:52px; height:52px; background:#c4a87c; border:3px solid #8b6f4e; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#3a2810; cursor:pointer}
-        .backpack-panel{position:fixed; bottom:84px; left:20px; background:#fdfaf2; border:2px solid #c4b898; border-radius:8px; padding:16px; min-width:180px; display:none; z-index:249; box-shadow:0 6px 20px rgba(0,0,0,0.2)}
+        .modal-dialog{background:#fef9ed;border:3px solid #c9a87c;border-radius:10px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;padding:30px;position:relative;z-index:301}
+        .backpack-btn{position:fixed;bottom:24px;left:24px;z-index:250;width:52px;height:52px;background:#c4a87c;border:3px solid #8b6f4e;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#3a2810;cursor:pointer}
+        .backpack-panel{position:fixed;bottom:84px;left:20px;background:#fdfaf2;border:2px solid #c4b898;border-radius:8px;padding:16px;min-width:180px;display:none;z-index:249;box-shadow:0 6px 20px rgba(0,0,0,0.2)}
         .backpack-panel.open{display:block}
-        .year-switch{position:absolute; top:12px; left:20px; z-index:10; font-family:var(--font-heading); background:rgba(253,252,247,0.9); padding:4px 12px; border-radius:4px; border:1px solid #d4ceba; display:none}
+        .year-switch{position:absolute;top:12px;left:20px;z-index:10;font-family:var(--font-heading);background:rgba(253,252,247,0.9);padding:4px 12px;border-radius:4px;border:1px solid #d4ceba;display:none}
         .year-switch.show{display:block}
         .hidden{display:none !important}
         .article-content{line-height:1.9;text-align:justify}
@@ -60,6 +53,10 @@
         .footer-col p{cursor:pointer;margin:5px 0;font-size:0.9rem}
         .footer-col p:hover{color:#fff}
         .footer-bottom{background:#1a1a1a;color:#666;text-align:center;padding:10px;font-size:0.8rem;border-top:1px solid #333}
+        .award-table{width:100%;border-collapse:collapse;margin:20px 0;}
+        .award-table th,.award-table td{border:1px solid #c4b898;padding:8px;text-align:center;font-size:0.9rem;}
+        .award-table th{background:#f5efe0;font-weight:bold;}
+        .award-table .highlight-row{font-weight:bold;background:#fdfaf2;}
     </style>
 </head>
 <body>
@@ -140,7 +137,21 @@
         <p>为弘扬爱岗敬业、争先创优的工作风气，发挥先进模范的示范引领作用，经各部门考核推荐、运营中心综合评议，场馆研究决定，对本季度表现优异的员工予以正式表彰。后续将发布完整表彰人员公示，公布获奖人员及先进工作事迹。</p>
         <p>希望受到表彰的人员珍惜荣誉、持续精进，在后续工作中再创佳绩；同时号召全体员工以先进同事为榜样，坚守岗位初心，用心守护百年旧岁轩馆藏与建筑，齐心协力推动场馆文化服务工作稳步发展。</p>
         <p style="text-align:right">旧岁轩文博运营中心<br>2026年06月29日</p>
-        <a href="#" onclick="downloadFile()" style="color:var(--accent)">📎 旧岁轩2026年第二季度表彰人员公示.xlsx</a>
+
+        <h4 style="margin-top:30px;">表彰人员公示</h4>
+        <table class="award-table">
+            <tr><th>工号</th><th>姓名</th><th>岗位</th><th>表彰事由</th><th>备注</th></tr>
+            <tr><td>2230869</td><td>张伟</td><td>销售经理</td><td>年度销售业绩冠军，超额完成年度目标150%</td><td></td></tr>
+            <tr><td>1853074</td><td>李娜</td><td>珠宝鉴定师</td><td>全年鉴定零差错，为公司规避风险超200万</td><td></td></tr>
+            <tr><td>2430522</td><td>王桂兰</td><td>保洁员</td><td>全年负责区域卫生零投诉，工作认真负责</td><td></td></tr>
+            <tr><td>1977685</td><td>赵刚</td><td>安全管理员</td><td>及时发现并处置3起安全隐患</td><td></td></tr>
+            <tr><td>2584136</td><td>刘敏</td><td>客服主管</td><td>全年客户满意度98.5%，零重大投诉</td><td></td></tr>
+            <tr><td>1632748</td><td>陈军</td><td>行政专员</td><td>全年行政保障零失误，节约办公成本10%</td><td></td></tr>
+            <tr><td>2350967</td><td>孙丽</td><td>仓储管理员</td><td>全年库存盘点零差异，出入库效率提升20%</td><td></td></tr>
+            <tr class="highlight-row"><td>1829637</td><td>周强</td><td>安保队长</td><td>监控室24小时值班，零安全事故</td><td></td></tr>
+            <tr><td>2088456</td><td>吴燕</td><td>财务会计</td><td>全年账务处理零差错，税务申报零逾期</td><td></td></tr>
+            <tr><td>2148793</td><td>郑浩</td><td>技术支持工程师</td><td>全年系统运维零故障，响应及时率100%</td><td></td></tr>
+        </table>
     </div>
 
     <div id="zhouMonitorPage" class="hidden content-section">
@@ -225,29 +236,17 @@ function showHome(){
     document.getElementById('awardPage').classList.add('hidden');
 }
 
-// 视频隐藏/显示控制
 function hideVideo(){
     const video = document.getElementById('mainVideo');
-    if(video){
-        video.pause();
-        video.style.display = 'none';
-    }
+    if(video){ video.pause(); video.style.display = 'none'; }
 }
 function showVideo(){
     const video = document.getElementById('mainVideo');
-    if(video){
-        video.style.display = '';
-    }
+    if(video){ video.style.display = ''; }
 }
 
-function openLogin(){ 
-    hideVideo();
-    document.getElementById('loginModal').classList.remove('hidden'); 
-}
-function closeLogin(){ 
-    document.getElementById('loginModal').classList.add('hidden'); 
-    showVideo();
-}
+function openLogin(){ hideVideo(); document.getElementById('loginModal').classList.remove('hidden'); }
+function closeLogin(){ document.getElementById('loginModal').classList.add('hidden'); showVideo(); }
 
 function doLogin(){
     const wid = document.getElementById('workerId').value.trim();
@@ -291,14 +290,6 @@ function openAwardPage(){
     document.getElementById('zhouMonitorPage').classList.add('hidden');
     document.getElementById('newsArticlePage').classList.add('hidden');
 }
-function downloadFile(){
-    const content = `旧岁轩2026年第二季度表彰人员公示\n姓名,部门,奖项\n周强,安保部,优秀员工\n...`;
-    const blob = new Blob([content], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = '旧岁轩2026年第二季度表彰人员公示.xlsx';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-}
 
 function toggleBackpack(){ document.getElementById('backpackPanel').classList.toggle('open'); updateBackpackUI(); }
 function updateBackpackUI(){
@@ -333,9 +324,9 @@ function switchYear(val){
         const video = document.getElementById('mainVideo');
         video.pause();
         video.src = '';
-        showVideo(); // 确保可见但无内容
+        showVideo();
         document.getElementById('hintModal').classList.remove('hidden');
-        hideVideo(); // 弹窗时隐藏视频
+        hideVideo();
     } else {
         hintConfirmed = true;
         videoStarted = true;
@@ -346,7 +337,7 @@ function switchYear(val){
 function confirmHint(){
     document.getElementById('hintModal').classList.add('hidden');
     hintConfirmed = true;
-    showVideo(); // 弹窗关闭后显示视频区域
+    showVideo();
 }
 
 let currentMonitor = 1;
@@ -363,18 +354,11 @@ function initMonitorPage(){
     loadVideo();
 }
 function switchMonitor(num){
-    if(currentYear === '1926' && !videoStarted && num !== 1){
-        alert('请从监控1开始');
-        return;
-    }
+    if(currentYear === '1926' && !videoStarted && num !== 1){ alert('请从监控1开始'); return; }
     currentMonitor = num;
-    if(!videoStarted && hintConfirmed && currentYear === '1926'){
-        videoStarted = true;
-    }
+    if(!videoStarted && hintConfirmed && currentYear === '1926'){ videoStarted = true; }
     if(videoStarted) loadVideo();
-    if(currentYear === '1926' && diaryStep === num && !monitorSuccess[num-1]){
-        showDiaryPopup();
-    }
+    if(currentYear === '1926' && diaryStep === num && !monitorSuccess[num-1]){ showDiaryPopup(); }
 }
 function loadVideo(){
     const video = document.getElementById('mainVideo');
@@ -396,11 +380,7 @@ function sendDiaryMsg(){
     if(currentYear !== '1926') return;
     const input = document.getElementById('diaryMsg');
     const msg = input.value.trim();
-    if(diaryStep === 0 && msg === '行动开始'){
-        diaryStep = 1;
-        input.value = '行动';
-        return;
-    }
+    if(diaryStep === 0 && msg === '行动开始'){ diaryStep = 1; input.value = '行动'; return; }
     if(diaryStep >= 1 && diaryStep <= 3 && msg === '行动'){
         const video = document.getElementById('mainVideo');
         const t = video.currentTime;
@@ -420,10 +400,7 @@ function sendDiaryMsg(){
                 GameState.timeConverterCollected = false;
                 saveGame();
                 window.location.href = 'pageA.html';
-            } else {
-                document.getElementById('diaryPopup').classList.remove('open');
-                switchMonitor(diaryStep);
-            }
+            } else { document.getElementById('diaryPopup').classList.remove('open'); switchMonitor(diaryStep); }
         } else {
             alert('❌️行动失败');
             monitorSuccess = [false, false, false]; diaryStep = 1; currentMonitor = 1;
