@@ -59,11 +59,21 @@
         }
         .ending-calligraphy{
             font-family: "STKaiti","楷体","华文楷体","LiSu","隶书",serif;
-            font-size:3.5rem; color:#c9a87c; letter-spacing:8px; text-shadow:0 0 8px rgba(201,168,124,0.5);
-            margin-bottom:80px; text-align:center; line-height:1.5;
+            font-size:2.5rem; color:#c9a87c; letter-spacing:6px; text-shadow:0 0 8px rgba(201,168,124,0.5);
+            margin-bottom:30px; text-align:center;
+        }
+        .ending-text{
+            font-family: var(--font-body);
+            font-size:1rem; color:#b8a87d; letter-spacing:1px; text-align:center;
+            max-width:500px; line-height:1.8; margin-bottom:20px;
+        }
+        .ending-footnote{
+            font-family: var(--font-body);
+            font-size:0.85rem; color:#a09070; letter-spacing:1px; text-align:center;
+            margin-bottom:30px;
         }
         .ending-note{
-            font-size:1rem; color:#b8a87d; letter-spacing:2px; margin-top:40px;
+            font-size:1rem; color:#b8a87d; letter-spacing:2px; margin-top:10px;
             font-family: var(--font-body);
         }
     </style>
@@ -86,6 +96,12 @@
     <div class="ending-screen" id="endingScreen">
         <h1 class="ending-title">结局 · True Ending</h1>
         <div class="ending-calligraphy" id="calligraphyText"></div>
+        <div class="ending-text" id="endingText" style="display:none;">
+            你受邀参加了怀璞楼的首展，那透过遥远历史的匆匆一瞥，如今凝结成聚光灯下的温润瓷瓶，宁静又喧嚣。你随着讲解员的引导走到了展厅的出口，人群散去，你却久久停在出口旁边的结语前，那里只写着一句话“循此苦旅，以抵繁星”¹。时光向前，浪潮退却，无数微末片段组成过往，终究化作文明的图腾镌刻进我们的血脉，引领我们不断前行，继往开来。
+        </div>
+        <div class="ending-footnote" id="endingFootnote" style="display:none;">
+            注：“循此苦旅，以抵繁星”是苏州博物院的结语，这里引用了一下。
+        </div>
         <div class="ending-note" id="endingNote" style="display:none;">buaacrketoonseq</div>
     </div>
 
@@ -115,23 +131,19 @@
             // 显示结局画面
             const endingScreen = document.getElementById('endingScreen');
             endingScreen.classList.add('active');
-            // 打字机效果显示 “河清海晏，\n家国无恙。”
+            // 打字机效果显示 “河清海晏，家国无恙。”
             const calligraphyEl = document.getElementById('calligraphyText');
             const text = '河清海晏，家国无恙。';
             let i = 0;
             function typeChar() {
                 if (i < text.length) {
-                    const char = text.charAt(i);
-                    if (char === '，') {
-                        // 逗号后换行
-                        calligraphyEl.innerHTML += '，<br>';
-                    } else {
-                        calligraphyEl.innerHTML += char;
-                    }
+                    calligraphyEl.textContent += text.charAt(i);
                     i++;
-                    setTimeout(typeChar, 150);
+                    setTimeout(typeChar, 120);
                 } else {
-                    // 显示底部小字
+                    // 显示中间段落、脚注和底部小字
+                    document.getElementById('endingText').style.display = 'block';
+                    document.getElementById('endingFootnote').style.display = 'block';
                     document.getElementById('endingNote').style.display = 'block';
                 }
             }
