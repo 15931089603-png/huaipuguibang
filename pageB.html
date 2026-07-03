@@ -177,14 +177,31 @@ if (!currentSlot) window.location.href = 'save.html';
 const STORAGE_KEY = `slot${currentSlot}_data`;
 
 const GameState = {
-    announcementSeen: false, clickedHotspots: {}, backpack: [],
-    diaryUnlocked: false, diaryConversationDone: false, studyKeyAvailable: false,
-    pic7Pasted: false, passwordSolved: false, readerPages: {},
-    conversationStage: 0, bookSequence: [], secretUnlocked: false,
-    drawerPuzzleSolved: false, telegraphSolved: false, timeConverterCollected: false,
-    drawerRedDot: false, drawerRedDotSeen: false, diaryRedDotSeen: false,
-    diaryStage: 1, diaryDialogues: {}, visitorName: '玩家', drawerNoteSolved: false,
-    remainingChars: [], slotValues: ['', '', '', '', '', '', '', ''], pageCCompleted: false,
+    announcementSeen: false,
+    clickedHotspots: {},
+    backpack: [],
+    diaryUnlocked: false,
+    diaryConversationDone: false,
+    studyKeyAvailable: false,
+    pic7Pasted: false,
+    passwordSolved: false,
+    readerPages: {},
+    conversationStage: 0,
+    bookSequence: [],
+    secretUnlocked: false,
+    drawerPuzzleSolved: false,
+    telegraphSolved: false,
+    timeConverterCollected: false,
+    drawerRedDot: false,
+    drawerRedDotSeen: false,
+    diaryRedDotSeen: false,
+    diaryStage: 1,
+    diaryDialogues: {},
+    visitorName: '玩家',
+    drawerNoteSolved: false,
+    remainingChars: [],
+    slotValues: ['', '', '', '', '', '', '', ''],
+    pageCCompleted: false,
     diaryNotificationShown: false
 };
 function loadGame() {
@@ -326,7 +343,9 @@ function goToClassroom() {
     renderClassroom();
 }
 function enterStudy() {
+    // 需要钥匙且完成第一段对话
     if (!GameState.backpack.includes('studyKey')) { showToast('需要钥匙'); return; }
+    if (!GameState.diaryDialogues['1']) { showToast('第一段对话尚未完成'); return; }
     document.getElementById('classroomView').classList.add('hidden');
     document.getElementById('studyView').classList.remove('hidden');
     document.getElementById('secretView').classList.add('hidden');
@@ -620,7 +639,7 @@ function openDrawerLetter() { openModal(`<div class="reader"><p>甲：晚夏念�
 function openDrawerNote() { openModal(`<div style="line-height:2;"><p>1.〡-〣-〣 2.十〡-〢-〤 3.〣-〧-〤 4.十〡-卄〧-〡 5.十〩-十〩-〡 6.十〩-卄〧-〢</p><div style="margin-top:10px;"><b>明文：</b><input id="drawerInput" placeholder="请输入明文"><button onclick="checkDrawer()">确认</button></div><span style="font-size:0.8rem;color:#888;">提示：明文是一个精确的日期及时间</span></div>`); }
 function checkDrawer() { if (document.getElementById('drawerInput').value.trim() === '五月廿一申时') { GameState.drawerNoteSolved = true; showToast('正确'); closeModal(); if (GameState.conversationStage < 3) GameState.conversationStage = 3; updateBackpackUI(); } else showToast('错误'); }
 function openTelegraph() { openModal(`<button onclick="openTelegraphBook()">中文明文编码</button><button onclick="openTelegraphTable()">电报密文记录表</button>`); }
-function openTelegraphBook() { closeModal(); const rawData = "邦5702 日6010 铺8362 三1010 号6040 午8040 后7266 晤6161 面1060 青5022 水1223 路6706 转4531 运3130 土4010 古4060 归2721 瓷1761 藏4425 地4411 后7266 携5602 定3080 窑3066 残1064 玉1010 片2222 防7022 守3034 日6010".split(/\s+/).filter(Boolean); const items = []; for (let i=0; i<rawData.length; i+=2) items.push({ word: rawData[i], code: rawData[i+1] || '' }); const pageSize = 5, totalPages = Math.ceil(items.length / pageSize); let cp = GameState.readerPages['telegraphBook'] || 0; const start = cp * pageSize; const pageItems = items.slice(start, start + pageSize); let pageHtml = pageItems.map(item => `<p>${item.word} ${item.code}</p>`).join(''); openModal(`<div class="reader"><div>${pageHtml}</div><div class="page-turn"><button onclick="turnTelegraphBookPage(-1)" ${cp===0?'disabled':''}>上一页</button><span>${cp+1}/${totalPages}</span><button onclick="turnTelegraphBookPage(1)" ${cp===totalPages-1?'disabled':''}>下一页</button></div></div>`, false); GameState.readerPages['telegraphBook'] = cp; saveGame(); }
+function openTelegraphBook() { closeModal(); const rawData = "邦5702 日6010 铺8362 三9010 号6040 午8040 后7266 晤6161 面1060 青5022 水1223 路6706 转4531 运3130 土4010 古4060 归2721 瓷1761 藏4425 地4411 后7266 携5602 定3080 窑3066 残1064 玉1010 片2222 防7022 守3034 日6010".split(/\s+/).filter(Boolean); const items = []; for (let i=0; i<rawData.length; i+=2) items.push({ word: rawData[i], code: rawData[i+1] || '' }); const pageSize = 5, totalPages = Math.ceil(items.length / pageSize); let cp = GameState.readerPages['telegraphBook'] || 0; const start = cp * pageSize; const pageItems = items.slice(start, start + pageSize); let pageHtml = pageItems.map(item => `<p>${item.word} ${item.code}</p>`).join(''); openModal(`<div class="reader"><div>${pageHtml}</div><div class="page-turn"><button onclick="turnTelegraphBookPage(-1)" ${cp===0?'disabled':''}>上一页</button><span>${cp+1}/${totalPages}</span><button onclick="turnTelegraphBookPage(1)" ${cp===totalPages-1?'disabled':''}>下一页</button></div></div>`, false); GameState.readerPages['telegraphBook'] = cp; saveGame(); }
 function turnTelegraphBookPage(delta) { GameState.readerPages['telegraphBook']=(GameState.readerPages['telegraphBook']||0)+delta; saveGame(); closeModal(); setTimeout(openTelegraphBook,100); }
 function openTelegraphTable() { openModal(`<table class="grid-table" style="margin:10px auto;"><tr><th>序号</th><th>①</th><th>②</th><th>③</th><th>④</th></tr><tr><td>1</td><td>·····</td><td>-----</td><td>··---</td><td>··---</td></tr><tr><td>2</td><td>·----</td><td>--···</td><td>-····</td><td>·----</td></tr><tr><td>3</td><td>···--</td><td>-----</td><td>···--</td><td>····-</td></tr><tr><td>4</td><td>····-</td><td>-----</td><td>·----</td><td>-----</td></tr><tr><td>5</td><td>····-</td><td>-----</td><td>-····</td><td>-----</td></tr><tr><td>6</td><td>·----</td><td>-----</td><td>·----</td><td>-----</td></tr><tr><td>7</td><td>··---</td><td>--···</td><td>··---</td><td>·----</td></tr><tr><td>8</td><td>·····</td><td>--···</td><td>-----</td><td>··---</td></tr></table><div style="text-align:center; margin-top:15px;"><b>电报明文</b> <input id="telegraphInput" placeholder="输入时不加标点符号"><button onclick="checkTelegraph()">确认</button></div>`); }
 function checkTelegraph() { if (document.getElementById('telegraphInput').value.trim() === '青瓷守土古玉归邦') { GameState.telegraphSolved = true; GameState.drawerRedDot = true; showToast('正确'); closeModal(); if (GameState.conversationStage < 4) GameState.conversationStage = 4; updateBackpackUI(); renderSecret(); } else showToast('错误'); }
@@ -632,11 +651,22 @@ function checkTriggers() {
     if (GameState.conversationStage === 0 && allCollected()) GameState.conversationStage = 1;
     if (GameState.conversationStage !== prevStage) {
         if (!GameState.diaryNotificationShown && GameState.conversationStage === 1) {
-            showToast('有新对话！日记本左上角会出现红点，请注意观察');
+            showToast('有新对话！请注意背包及日记本右上角的红点');
             GameState.diaryNotificationShown = true;
         }
     }
     updateBackpackUI(); saveGame();
+    updateNavStudy();
+}
+function updateNavStudy() {
+    const navStudy = document.getElementById('navStudy');
+    if (navStudy) {
+        if (GameState.backpack.includes('studyKey') && GameState.diaryDialogues['1']) {
+            navStudy.classList.remove('locked');
+        } else {
+            navStudy.classList.add('locked');
+        }
+    }
 }
 
 window.selectedItem = null;
@@ -651,6 +681,7 @@ window.addEventListener('load', () => {
     if (GameState.timeConverterCollected) enableYearSwitch();
     const hash = window.location.hash.slice(1);
     const returnView = sessionStorage.getItem('returnView');
+    updateNavStudy();
     if (returnView) {
         restoreView(returnView);
         sessionStorage.removeItem('returnView');
@@ -685,6 +716,7 @@ function restoreView(view) {
         renderClassroom();
     }
     updateNavActive(view || 'classroom');
+    updateNavStudy();
 }
 
 window.addEventListener('resize', () => {
